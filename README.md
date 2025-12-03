@@ -628,9 +628,19 @@
 
                 <button type="button" id="add-employee-button" onclick="addEmployeeField()">➕ Ajouter un Employé</button>
 
+                
+
+                <button type="button" id="save-employee-list-button" onclick="saveEmployees(null, null, true); alert('Liste des employés enregistrée.')" 
+
+                    style="background-color: #007bff; margin-top: 10px;">
+
+                    💾 Enregistrer les modifications de la liste
+
+                </button>
+
             </div>
 
-            <button type="button" onclick="calculateTips()">Calculer la Répartition (Responsable)</button>
+            <button type="button" id="calculate-button" onclick="calculateTips()">Calculer la Répartition (Responsable)</button>
 
         </fieldset>
 
@@ -972,7 +982,7 @@
 
             if (accounts.some(acc => acc.name.toLowerCase() === name.toLowerCase())) {
 
-                alert(`Le nom d'utilisateur "${name}" existe déjà.`);
+                alert(`Le nom d'utilisateur "${name}" existe déjà. Veuillez choisir un nom différent.`);
 
                 return;
 
@@ -1208,6 +1218,12 @@ Mot de passe: ${password}`);
 
             checkAdminMode(false);
 
+            
+
+            // Gère la visibilité du bouton de sauvegarde de liste et de calcul
+
+            updateEmployeeControlsVisibility();
+
         }
 
         /**
@@ -1312,6 +1328,50 @@ Mot de passe: ${password}`);
 
         }
 
+        /**
+
+         * Gère la visibilité des boutons de gestion des employés et de calcul.
+
+         */
+
+        function updateEmployeeControlsVisibility() {
+
+            const adminActive = localStorage.getItem(ADMIN_STATE_KEY) === 'true';
+
+            const saveButton = document.getElementById('save-employee-list-button');
+
+            const addButton = document.getElementById('add-employee-button');
+
+            const calculateButton = document.getElementById('calculate-button');
+
+            
+
+            // Si l'utilisateur est un employé standard, masquer tous les boutons de gestion/calcul
+
+            if (saveButton) {
+
+                saveButton.style.display = adminActive ? 'block' : 'none';
+
+            }
+
+            if (addButton) {
+
+                addButton.style.display = adminActive ? 'block' : 'none';
+
+            }
+
+            
+
+            // Masquer le bouton de calcul s'il n'est pas Responsable
+
+            if (calculateButton) {
+
+                calculateButton.style.display = adminActive ? 'block' : 'none';
+
+            }
+
+        }
+
         // ----------------------------------------------------
 
         // GESTION DES EMPLOYÉS (Liste Responsable)
@@ -1330,23 +1390,15 @@ Mot de passe: ${password}`);
 
             const newPassword = prompt(`Définir un nouveau mot de passe pour l'employé "${employeeName}" :`);
 
-            if (newPassword === null) {
+            if (newPassword === null || newPassword.trim().length === 0) {
 
-                // L'utilisateur a cliqué sur Annuler
+                if (newPassword !== null) alert("Le mot de passe ne peut pas être vide.");
 
                 return;
 
             }
 
             const trimmedPassword = newPassword.trim();
-
-            if (trimmedPassword.length === 0) {
-
-                alert("Le mot de passe ne peut pas être vide.");
-
-                return;
-
-            }
 
             // Vérification de la règle de sécurité (interdiction du mot de passe Admin)
 
@@ -1364,23 +1416,81 @@ Mot de passe: ${password}`);
 
             alert(`Le mot de passe de l'employé "${employeeName}" a été mis à jour avec succès.`);
 
+            
+
+            // Recharger la liste pour s'assurer que l'état de la liste est correct après un prompt
+
+            loadEmployees();
+
         }
 
-        
+        /**
+
+         * Demande le mot de passe initial pour un nouvel employé.
+
+         */
+
+        function promptForNewEmployeePassword(name) {
+
+            const password = prompt(`Veuillez définir le mot de passe initial pour le nouvel employé "${name}" :`);
+
+            
+
+            if (password === null || password.trim().length === 0) {
+
+                if (password !== null) alert("Le mot de passe ne peut pas être vide. Ajout annulé.");
+
+                loadEmployees(); // Recharger la liste sans l'employé
+
+                return;
+
+            }
+
+            const trimmedPassword = password.trim();
+
+            if (trimmedPassword === ADMIN_PASSWORD) {
+
+                alert("Ce mot de passe est réservé au compte Responsable. Ajout annulé.");
+
+                loadEmployees();
+
+                return;
+
+            }
+
+            
+
+            // Ajouter le nouveau compte immédiatement
+
+            let accounts = getEmployeeAccounts();
+
+            accounts.push({ name: name, password: trimmedPassword });
+
+            localStorage.setItem(EMPLOYEE_ACCOUNTS_KEY, JSON.stringify(accounts));
+
+            
+
+            alert(`L'employé "${name}" a été ajouté avec un mot de passe initial. Cliquez sur "Enregistrer les modifications de la liste" pour finaliser.`);
+
+            // Afficher le nouvel employé dans l'interface
+
+            loadEmployees(); 
+
+        }
 
         /**
 
          * Fonction de sauvegarde des comptes employés (nom et mdp).
 
-         * Peut être utilisée par l'Admin pour modifier un mot de passe spécifique.
-
          * @param {string} [updateName=null] - Nom de l'employé à mettre à jour (pour le mot de passe).
 
          * @param {string} [newPassword=null] - Nouveau mot de passe à définir.
 
+         * @param {boolean} [shouldReload=false] - Indique si la fonction doit recharger l'UI après sauvegarde (utilisé par le bouton explicite).
+
          */
 
-        function saveEmployees(updateName = null, newPassword = null) {
+        function saveEmployees(updateName = null, newPassword = null, shouldReload = false) {
 
             const employeeGroups = document.querySelectorAll('.employee-input-group');
 
@@ -1388,45 +1498,83 @@ Mot de passe: ${password}`);
 
             let newAccounts = [];
 
+            let existingNames = []; 
+
+            // 1. Traiter les comptes basés sur l'affichage actuel (pour les heures et les modifications de MDP)
+
             employeeGroups.forEach(group => {
 
                 const nameInput = group.querySelector('.employee-name');
 
                 const name = nameInput ? nameInput.value.trim() : '';
 
-                if (name.length > 0) {
+                
 
-                    // Trouver l'ancien mot de passe pour le conserver
+                if (name.length === 0 || existingNames.includes(name)) {
 
-                    let existingAccount = accounts.find(acc => acc.name === name);
-
-                    let password = existingAccount ? existingAccount.password : '';
-
-                    
-
-                    // Si on met à jour un mot de passe spécifique
-
-                    if (updateName && newPassword && name === updateName) {
-
-                        password = newPassword;
-
-                    }
-
-                    // S'assurer qu'on n'ajoute pas de doublons dans la nouvelle liste
-
-                    if (!newAccounts.some(acc => acc.name === name)) {
-
-                        newAccounts.push({ name, password });
-
-                    }
+                    return; 
 
                 }
+
+                existingNames.push(name);
+
+                let existingAccount = accounts.find(acc => acc.name === name);
+
+                let password = existingAccount ? existingAccount.password : '';
+
+                
+
+                // Gère la mise à jour de mot de passe (via le bouton jaune "Modifier MDP")
+
+                if (updateName && newPassword && name === updateName) {
+
+                    password = newPassword;
+
+                }
+
+                
+
+                // Si le compte a été ajouté via le prompt mais n'avait pas encore le mot de passe stocké (fallback)
+
+                if (password === '' && name !== ADMIN_USERNAME) {
+
+                     password = 'A_DEFINIR_PAR_ADMIN'; 
+
+                }
+
+                
+
+                newAccounts.push({ name, password });
 
             });
 
             
 
+            // 2. Ajouter le compte Responsable s'il n'est pas dans la liste (car il n'est pas affiché dans l'UI)
+
+            const adminAccount = accounts.find(acc => acc.name === ADMIN_USERNAME);
+
+            if (adminAccount && !newAccounts.some(acc => acc.name === ADMIN_USERNAME)) {
+
+                 newAccounts.push(adminAccount);
+
+            }
+
+            
+
+            // 3. Stocker la nouvelle liste
+
             localStorage.setItem(EMPLOYEE_ACCOUNTS_KEY, JSON.stringify(newAccounts));
+
+            
+
+            // Si le bouton de validation est cliqué, on rafraichit la liste pour confirmer la sauvegarde visuellement
+
+            if (shouldReload) {
+
+                loadEmployees(); 
+
+            }
 
         }
 
@@ -1542,11 +1690,13 @@ Mot de passe: ${password}`);
 
                 </button>` : '';
 
+            // Le champ du nom est désactivé (disabled) pour forcer l'Admin à utiliser les boutons "Ajouter" et "Supprimer"
+
             newGroup.innerHTML = `
 
                 <input type="text" placeholder="Nom de l'employé" value="${name}" class="employee-name"
 
-                    oninput="saveEmployees()" required ${disabledAttribute}>
+                    required disabled> 
 
                 ${hoursInputHTML}
 
@@ -1600,19 +1750,51 @@ Mot de passe: ${password}`);
 
             node.remove();
 
+            
+
+            // 4. Mettre à jour la liste stockée après la suppression
+
+            saveEmployees(); // L'appel sans arguments force une resauvegarde de la liste DOM actuelle (qui est maintenant correcte).
+
         }
+
+        /**
+
+         * Déclenche la procédure d'ajout de nouvel employé (Nom et MDP).
+
+         */
 
         function addEmployeeField() {
 
             if (localStorage.getItem(ADMIN_STATE_KEY) !== 'true') return;
 
-            alert("Ajoutez le nom dans le champ ci-dessous. Vous pourrez définir le mot de passe via l'onglet 'Créer un Compte' une fois connecté.");
+            const newName = prompt("Veuillez saisir le NOM du nouvel employé :").trim();
 
-            createEmployeeField('', 0);
+            if (newName === null || newName.length === 0) {
 
-            const lastInput = document.querySelector('#employee-list .employee-input-group:last-child .employee-name');
+                if (newName !== null) alert("Le nom de l'employé ne peut pas être vide. Ajout annulé.");
 
-            if (lastInput) lastInput.focus();
+                return;
+
+            }
+
+            
+
+            // Vérification des doublons ou du nom Admin
+
+            let accounts = getEmployeeAccounts();
+
+            if (accounts.some(acc => acc.name.toLowerCase() === newName.toLowerCase()) || newName.toLowerCase() === ADMIN_USERNAME.toLowerCase()) {
+
+                alert(`Le nom d'utilisateur "${newName}" est déjà utilisé ou réservé.`);
+
+                return;
+
+            }
+
+            // Procéder à la demande de mot de passe
+
+            promptForNewEmployeePassword(newName);
 
         }
 
@@ -1626,13 +1808,15 @@ Mot de passe: ${password}`);
 
             list.innerHTML = '';
 
+            
+
+            // Gère la visibilité des contrôles
+
+            updateEmployeeControlsVisibility();
+
             if (accounts.length === 0) {
 
-                if (localStorage.getItem(ADMIN_STATE_KEY) === 'true') {
-
-                    createEmployeeField('', 0);
-
-                }
+                // Si pas d'employés, laisser la liste vide (le bouton "Ajouter" est toujours là)
 
                 return;
 
@@ -1642,7 +1826,13 @@ Mot de passe: ${password}`);
 
                 const hours = allHours[account.name] || 0;
 
-                createEmployeeField(account.name, hours);
+                // Ne pas afficher l'entrée "Responsable" dans la liste d'édition
+
+                if (account.name !== ADMIN_USERNAME) {
+
+                    createEmployeeField(account.name, hours);
+
+                }
 
             });
 
@@ -2212,9 +2402,9 @@ Mot de passe: ${password}`);
 
             }
 
-            // Pas besoin d'appeler saveEmployees() ici car les modifications se font oninput ou par promptForNewPassword
+            // S'assurer que les dernières modifications de la liste sont prises en compte
 
-            // saveEmployees(); 
+            saveEmployees(null, null, true); // Appel avec shouldReload=true pour forcer la mise à jour finale des noms/heures
 
             const totalTips = calculateConsolidatedTotal();
 
@@ -2317,5 +2507,7 @@ Mot de passe: ${password}`);
     </script>
 
 </body>
+
+</html>
 
 </html>
