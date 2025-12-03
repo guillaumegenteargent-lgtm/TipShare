@@ -514,47 +514,11 @@
 
                 <button onclick="loginEmployee()" style="background-color: #28a745;">Se Connecter</button>
 
-                <p style="text-align:center; margin-top: 10px;">
+                
 
-                    <button onclick="showRegisterForm()"
-
-                        style="width: auto; background-color: #6c757d; padding: 8px 15px; font-size: 0.9em;">Créer un
-
-                        Compte (Responsable requis)</button>
-
-                </p>
+                </div>
 
             </div>
-
-            <div id="register-form" style="display:none;">
-
-                <h3>Créer un Compte Employé (Responsable Connecté Requis)</h3>
-
-                <p style="font-size: 0.9em; color: #dc3545;">**Vous devez être connecté en mode Responsable pour créer
-
-                    des comptes.**</p>
-
-                <label for="register-name">Nom :</label>
-
-                <input type="text" id="register-name" placeholder="Nom pour le compte" required>
-
-                <label for="register-password">Mot de passe :</label>
-
-                <input type="password" id="register-password" placeholder="Mot de passe pour le compte" required>
-
-                <button onclick="registerEmployee()" style="background-color: #007bff;">Enregistrer le Compte</button>
-
-                <p style="text-align:center; margin-top: 10px;">
-
-                    <button onclick="hideRegisterForm()"
-
-                        style="width: auto; background-color: #dc3545; padding: 8px 15px; font-size: 0.9em;">Annuler</button>
-
-                </p>
-
-            </div>
-
-        </div>
 
         <div id="employee-input-section" class="section" style="display:none;">
 
@@ -908,113 +872,11 @@
 
         // ----------------------------------------------------
 
-        function showRegisterForm() {
+        // Suppression des fonctions showRegisterForm(), hideRegisterForm() et registerEmployee()
 
-            if (currentUser !== ADMIN_USERNAME) {
+        // car le bouton et le formulaire ont été retirés du HTML.
 
-                alert("Seul le Responsable (connecté via le nom d'utilisateur et mot de passe secret) peut créer de nouveaux comptes.");
-
-                return;
-
-            }
-
-            document.getElementById('login-form').style.display = 'none';
-
-            document.getElementById('register-form').style.display = 'block';
-
-        }
-
-        function hideRegisterForm() {
-
-            document.getElementById('login-form').style.display = 'block';
-
-            document.getElementById('register-form').style.display = 'none';
-
-        }
-
-        /**
-
-         * Enregistre un nouvel employé (Responsable doit être connecté).
-
-         */
-
-        function registerEmployee() {
-
-            if (currentUser !== ADMIN_USERNAME) {
-
-                alert("Seul le Responsable peut créer de nouveaux comptes.");
-
-                return;
-
-            }
-
-            const name = document.getElementById('register-name').value.trim();
-
-            const password = document.getElementById('register-password').value;
-
-            // 1. Vérification des champs requis
-
-            if (!name || !password) {
-
-                alert("Veuillez remplir le nom et le mot de passe du nouvel employé.");
-
-                return;
-
-            }
-
-            
-
-            // 2. Vérification de la nouvelle règle : Interdiction du nom ou mot de passe Responsable
-
-            if (name.toLowerCase() === ADMIN_USERNAME.toLowerCase() || password === ADMIN_PASSWORD) {
-
-                alert("Ce nom d'utilisateur ou ce mot de passe est réservé au compte Responsable.");
-
-                return;
-
-            }
-
-            
-
-            // 3. Vérification de l'unicité du nom d'utilisateur
-
-            let accounts = getEmployeeAccounts();
-
-            if (accounts.some(acc => acc.name.toLowerCase() === name.toLowerCase())) {
-
-                alert(`Le nom d'utilisateur "${name}" existe déjà. Veuillez choisir un nom différent.`);
-
-                return;
-
-            }
-
-            // 4. Enregistrement du compte
-
-            accounts.push({ name: name, password: password });
-
-            localStorage.setItem(EMPLOYEE_ACCOUNTS_KEY, JSON.stringify(accounts));
-
-            // 5. Mise à jour de la liste Responsable
-
-            loadEmployees();
-
-            // 6. Notification 
-
-            alert(`Compte "${name}" créé avec succès !
-
-Nom d'utilisateur: ${name}
-
-Mot de passe: ${password}`);
-
-            // 7. Nettoyage des champs
-
-            hideRegisterForm();
-
-            document.getElementById('register-name').value = '';
-
-            document.getElementById('register-password').value = '';
-
-        }
+        
 
         /**
 
@@ -1200,7 +1062,7 @@ Mot de passe: ${password}`);
 
                 loginForm.style.display = 'block';
 
-                document.getElementById('register-form').style.display = 'none';
+                
 
                 // Le nom reste, seul le mot de passe est effacé
 
@@ -2507,7 +2369,5 @@ Mot de passe: ${password}`);
     </script>
 
 </body>
-
-</html>
 
 </html>
