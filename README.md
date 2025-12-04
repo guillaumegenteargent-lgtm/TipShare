@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TipShare - Calculateur de Pourboires</title>
     <style>
-        /* Styles CSS */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f7f6;
@@ -47,12 +47,8 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input[type="number"],
-        input[type="text"],
-        input[type="password"],
-        input[type="email"],
-        select {
-            width: calc(100% - 12px);
+        input[type="number"], input[type="text"], select {
+            width: calc(100% - 22px);
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
@@ -80,29 +76,6 @@
             right: 20px;
             text-align: right;
             font-size: 0.95em;
-            padding: 5px 10px;
-            background-color: #e8f5e9;
-            border-radius: 5px;
-            border: 1px solid #4CAF50;
-            z-index: 10;
-        }
-        #header-status strong {
-            color: #4CAF50;
-            font-size: 1.1em;
-            margin-right: 10px;
-        }
-        #header-status .logout-button {
-            background-color: #dc3545;
-            width: auto;
-            padding: 4px 8px;
-            font-size: 0.8em;
-            margin: 0;
-            margin-left: 10px;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        #header-status .logout-button:hover {
-            background-color: #c82333;
         }
         #admin-status {
             font-weight: bold;
@@ -111,33 +84,19 @@
             display: inline-block;
             background-color: #28a745;
             color: white;
-            margin-right: 10px;
         }
-        .tips-input-detail {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px dashed #4CAF50;
-            border-radius: 5px;
-            background-color: #f0fff0;
+        #login-button {
+            width: auto;
+            padding: 8px 15px;
+            background-color: #007bff;
+            font-size: 0.9em;
         }
-        .tips-input-detail label {
-            font-weight: normal;
-        }
-        .tips-input-detail input {
-            margin-bottom: 0;
-            width: 90%;
-        }
-        #employee-list {
-            margin-top: 15px;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
+        #login-button.logout {
+            background-color: #dc3545;
         }
         .employee-input-group {
             display: grid;
-            grid-template-columns: 2fr 1fr 120px;
+            grid-template-columns: 2fr 1fr 40px;
             gap: 10px;
             margin-bottom: 10px;
             align-items: center;
@@ -148,19 +107,14 @@
         .remove-btn {
             background-color: #f44336;
             width: 35px;
-            padding: 8px 0;
-            font-size: 14px;
-            margin-left: 5px;
+            height: 35px;
+            padding: 0;
+            font-size: 18px;
+            line-height: 35px;
+            text-align: center;
         }
         .remove-btn:hover {
             background-color: #d32f2f;
-        }
-        #login-section,
-        #employee-input-section {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
         }
         #results {
             margin-top: 25px;
@@ -179,12 +133,8 @@
             padding: 8px 0;
             border-bottom: 1px dotted #ccc;
         }
-        .result-item:last-child {
-            border-bottom: none;
-        }
         .highlight {
             font-weight: bold;
-            color: #000;
         }
         .history-entry {
             border: 1px solid #ddd;
@@ -192,264 +142,221 @@
             margin-bottom: 10px;
             border-radius: 5px;
             background-color: #fff;
-            position: relative;
-        }
-        .history-header {
-            font-weight: bold;
-            color: #4CAF50;
-            display: flex;
-            justify-content: space-between;
-        }
-        .history-details {
-            font-size: 0.9em;
-            color: #555;
-            margin-top: 5px;
-        }
-        .history-delete-btn {
-            background-color: #f44336;
-            color: white;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 0.8em;
-            width: auto;
-            margin: 0;
-        }
-        .share-item-paid {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-right: 5px;
-            margin-top: 3px;
-        }
-        .share-item-paid.is-paid {
-            text-decoration: line-through;
-            color: #888;
-        }
-        .share-item-paid label {
-            margin-left: 5px;
-            font-size: 0.95em;
         }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="firebase-config.js"></script>
 </head>
 <body onload="loadDataAndInitialize()">
     <div class="container">
-        <div id="header-status"></div>
-        <h1>💰 TipShare : Calculateur de Pourboires par Heure</h1>
-        <div id="login-section">
-            <h2>👤 Connexion Employé</h2>
-            <div id="login-form">
-                <label for="login-email">Adresse e-mail :</label>
-                <input type="email" id="login-email" placeholder="Votre e-mail" required>
-                <label for="login-password">Mot de passe :</label>
-                <input type="password" id="login-password" placeholder="Mot de passe" required>
-                <button onclick="loginEmployee()">Se Connecter</button>
-            </div>
+        <div id="header-status">
+            <button id="login-button" onclick="toggleAdminMode()">Login Responsable</button>
         </div>
-        <div id="employee-input-section" class="section" style="display:none;">
-            <h2>2. ⏰ Mes Heures Travaillées</h2>
-            <label for="user-hours-input">Heures travaillées pour cette période :</label>
-            <input type="number" id="user-hours-input" min="0" step="0.5" oninput="saveUserHours()">
-        </div>
-        <hr>
-        <fieldset id="admin-controls-container" class="admin-controls-container" disabled>
+
+        <h1>💰 TipShare : Calculateur de Pourboires</h1>
+
+        <fieldset id="admin-controls-container" disabled>
             <div class="section">
-                <h2>1. 💶 Saisie du Montant Total</h2>
-                <label for="tips-period">Période de pourboires :</label>
-                <select id="tips-period" onchange="saveTotalTips(); updateInputFields()">
-                    <option value="jour">Jour</option>
-                    <option value="semaine">Semaine</option>
-                    <option value="mois">Mois</option>
-                </select>
-                <div id="simple-tips-input">
-                    <label for="total-tips">
-                        <span id="total-tips-label">Montant total des pourboires (Jour) (€) :</span>
-                    </label>
-                    <input type="number" id="total-tips" value="100" min="0" step="0.01" oninput="saveTotalTips()" required>
-                </div>
-                <div id="tips-daily-inputs" style="display:none;" class="tips-input-detail"></div>
-                <div id="tips-weekly-inputs" style="display:none;" class="tips-input-detail"></div>
-                <p style="text-align: center; font-size: 0.9em; margin-top: 10px;">
-                    Total consolidé : <strong id="consolidated-total">0.00 €</strong>
-                </p>
+                <h2>1. 💶 Montant Total des Pourboires</h2>
+                <label for="total-tips">Montant total (€) :</label>
+                <input type="number" id="total-tips" value="100" min="0" step="0.01" oninput="saveTotalTips()">
             </div>
-            <hr>
+
             <div class="section">
-                <h2>3. 🧑‍🤝‍🧑 Liste des Employés Enregistrés</h2>
+                <h2>2. 🧑‍🤝‍🧑 Employés et Heures</h2>
                 <div id="employee-list"></div>
-                <button type="button" id="add-employee-button" onclick="addEmployeeField()">➕ Ajouter un Employé</button>
-                <button type="button" id="save-employee-list-button" onclick="alert('La gestion des employés se fait maintenant dans la console Firebase.')" style="background-color: #007bff; margin-top: 10px;">
-                    💾 Enregistrer les modifications
-                </button>
+                <button type="button" onclick="addEmployeeField()">➕ Ajouter un Employé</button>
             </div>
-            <button type="button" id="calculate-button" onclick="calculateTips()">Calculer la Répartition (Responsable)</button>
+
+            <button type="button" onclick="calculateTips()">Calculer la Répartition</button>
         </fieldset>
-        <hr>
+        
         <div id="results" style="display:none;">
-            <h2>4. Résultats de la Répartition</h2>
+            <h2>Résultats</h2>
             <div class="result-item">
-                <span id="period-label">Total des Heures Travaillées :</span>
+                <span>Total des Heures :</span>
                 <span id="total-hours-output" class="highlight">0</span>
             </div>
             <div class="result-item">
-                <span>Taux de Pourboire par Heure :</span>
+                <span>Taux par Heure :</span>
                 <span id="tip-rate-output" class="highlight">0.00 €</span>
             </div>
-            <hr style="margin: 10px 0;">
+            <hr>
             <div id="individual-shares"></div>
-            <hr style="margin: 10px 0;">
-            <div class="result-item">
-                <span>Total Distribué :</span>
-                <span id="distributed-total" class="highlight">0.00 €</span>
-            </div>
         </div>
+
         <div class="section">
-            <h2>5. Historique des Répartitions 🕰️</h2>
-            <div id="history-list">
-                <p id="no-history-message">Aucun calcul n'a été enregistré.</p>
-            </div>
-            <button id="clear-history-btn" type="button" onclick="clearHistory()" style="background-color: #f44336; display: none;">Effacer l'Historique</button>
+            <h2>Historique</h2>
+            <div id="history-list"></div>
+            <button id="clear-history-btn" style="display:none;" onclick="clearHistory()">Effacer l'Historique</button>
         </div>
     </div>
+
     <script>
-        // Clés de stockage local
-        const EMPLOYEE_HOURS_KEY = 'tipshare_employee_hours';
-        const TIPS_STORAGE_KEY = 'tipshare_total_tips';
-        const DAILY_TIPS_STORAGE_KEY = 'tipshare_daily_tips';
-        const WEEKLY_TIPS_STORAGE_KEY = 'tipshare_weekly_tips';
-        const PERIOD_STORAGE_KEY = 'tipshare_period';
-        const HISTORY_STORAGE_KEY = 'tipshare_history';
+        const EMPLOYEES_KEY = 'tipshare_employees';
+        const TIPS_KEY = 'tipshare_total_tips';
+        const HISTORY_KEY = 'tipshare_history';
         const ADMIN_STATE_KEY = 'tipshare_admin_active';
+        const ADMIN_PASSWORD = '-Guigui951-';
 
-        const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
-        const weeksOfMonth = ["Semaine 1", "Semaine 2", "Semaine 3", "Semaine 4", "Semaine 5"];
-
-        // --- Initialisation de Firebase et de l'authentification ---
-        const auth = firebase.auth();
-        let currentUser = null;
-
-        // INITIALISATION
         function loadDataAndInitialize() {
-            auth.onAuthStateChanged(user => {
-                currentUser = user;
-                if (user) {
-                    user.getIdTokenResult().then(idTokenResult => {
-                        const isAdmin = !!idTokenResult.claims.admin;
-                        localStorage.setItem(ADMIN_STATE_KEY, isAdmin);
-                        updateUIForUser(user.email, isAdmin);
-                    });
-                } else {
-                    localStorage.setItem(ADMIN_STATE_KEY, 'false');
-                    updateUIForUser(null, false);
-                }
-                loadTotalTips();
-                loadHistory();
-                updateInputFields();
-            });
-        }
-
-        // GESTION DE L'AUTHENTIFICATION
-        function loginEmployee() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
-            if (!email || !password) {
-                alert("Veuillez remplir l'e-mail et le mot de passe.");
-                return;
-            }
-            auth.signInWithEmailAndPassword(email, password).catch(error => {
-                alert("Erreur de connexion : " + error.message);
-                document.getElementById('login-password').value = '';
-            });
-        }
-
-        function logoutEmployee() {
-            auth.signOut();
-        }
-        
-        // MISE À JOUR DE L'INTERFACE
-        function updateUIForUser(userEmail, isAdmin) {
-            const loginSection = document.getElementById('login-section');
-            const employeeInputSection = document.getElementById('employee-input-section');
-            const headerStatusDiv = document.getElementById('header-status');
-            const adminControls = document.getElementById('admin-controls-container');
-
-            headerStatusDiv.innerHTML = '';
-            
-            if (userEmail) {
-                loginSection.style.display = 'none';
-                let headerContent = `Connecté : <strong>${userEmail}</strong> <button onclick="logoutEmployee()" class="logout-button">Déconnexion</button>`;
-                
-                if (isAdmin) {
-                    headerContent = `<span id="admin-status">Mode Responsable</span>` + headerContent;
-                    employeeInputSection.style.display = 'none';
-                    adminControls.disabled = false;
-                    loadEmployees();
-                } else {
-                    employeeInputSection.style.display = 'block';
-                    adminControls.disabled = true;
-                    loadUserHours();
-                }
-                headerStatusDiv.innerHTML = headerContent;
-
-            } else {
-                loginSection.style.display = 'block';
-                employeeInputSection.style.display = 'none';
-                adminControls.disabled = true;
-                document.getElementById('login-password').value = '';
-            }
+            loadEmployees();
+            loadTotalTips();
             loadHistory();
+            checkAdminMode();
         }
 
-        // GESTION DES HEURES
-        function getEmployeeHours() {
-            const hoursJSON = localStorage.getItem(EMPLOYEE_HOURS_KEY);
-            return hoursJSON ? JSON.parse(hoursJSON) : {};
+        function toggleAdminMode() {
+            if (localStorage.getItem(ADMIN_STATE_KEY) === 'true') {
+                localStorage.setItem(ADMIN_STATE_KEY, 'false');
+                alert('Mode Responsable désactivé.');
+            } else {
+                const password = prompt('Veuillez entrer le mot de passe Responsable :');
+                if (password === ADMIN_PASSWORD) {
+                    localStorage.setItem(ADMIN_STATE_KEY, 'true');
+                    alert('Mode Responsable activé.');
+                } else if (password) {
+                    alert('Mot de passe incorrect.');
+                }
+            }
+            checkAdminMode();
         }
 
-        function loadUserHours() {
-            if (!currentUser) return;
-            const allHours = getEmployeeHours();
-            const hours = allHours[currentUser.uid] || 0;
-            document.getElementById('user-hours-input').value = hours > 0 ? hours : '';
+        function checkAdminMode() {
+            const adminActive = localStorage.getItem(ADMIN_STATE_KEY) === 'true';
+            document.getElementById('admin-controls-container').disabled = !adminActive;
+            const loginButton = document.getElementById('login-button');
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            
+            if (adminActive) {
+                loginButton.textContent = 'Logout Responsable';
+                loginButton.classList.add('logout');
+                clearHistoryBtn.style.display = 'block';
+            } else {
+                loginButton.textContent = 'Login Responsable';
+                loginButton.classList.remove('logout');
+                clearHistoryBtn.style.display = 'none';
+            }
         }
 
-        function saveUserHours() {
-            if (!currentUser) return;
-            const hoursInput = document.getElementById('user-hours-input');
-            const hours = parseFloat(hoursInput.value) || 0;
-            let allHours = getEmployeeHours();
-            allHours[currentUser.uid] = hours;
-            localStorage.setItem(EMPLOYEE_HOURS_KEY, JSON.stringify(allHours));
+        function addEmployeeField(name = '', hours = '') {
+            const list = document.getElementById('employee-list');
+            const div = document.createElement('div');
+            div.className = 'employee-input-group';
+            div.innerHTML = \`
+                <input type="text" placeholder="Nom de l'employé" value="\${name}" oninput="saveEmployees()">
+                <input type="number" placeholder="Heures" value="\${hours}" min="0" step="0.5" oninput="saveEmployees()">
+                <button class="remove-btn" onclick="this.parentElement.remove(); saveEmployees();">×</button>
+            \`;
+            list.appendChild(div);
         }
 
-        // --- SECTION ADMIN ---
-        function addEmployeeField() {
-            alert("Pour ajouter un employé, veuillez le faire depuis la console Firebase (Authentication > Users > Add user).");
+        function saveEmployees() {
+            const employees = [];
+            document.querySelectorAll('.employee-input-group').forEach(group => {
+                const name = group.children[0].value.trim();
+                const hours = group.children[1].value;
+                if (name) {
+                    employees.push({ name, hours });
+                }
+            });
+            localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(employees));
         }
 
         function loadEmployees() {
-            const list = document.getElementById('employee-list');
-            list.innerHTML = '<p>La liste des employés est gérée dans la console Firebase. Le calcul prendra en compte les heures de ceux qui en ont saisi.</p>';
+            const employees = JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || '[]');
+            document.getElementById('employee-list').innerHTML = '';
+            employees.forEach(emp => addEmployeeField(emp.name, emp.hours));
         }
 
-        // --- Fonctions utilitaires (à compléter) ---
-        function calculateTips() { /* ... Votre logique de calcul ... */ }
-        function loadHistory() { /* ... Votre logique d'historique ... */ }
-        function saveTotalTips() { /* ... etc ... */ }
-        function updateInputFields() { /* ... etc ... */ }
-        function calculateConsolidatedTotal() { /* ... etc ... */ }
-        function saveDailyTips() { /* ... etc ... */ }
-        function loadDailyTips() { /* ... etc ... */ }
-        function saveWeeklyTips() { /* ... etc ... */ }
-        function loadWeeklyTips() { /* ... etc ... */ }
-        function updateTipsLabel(period) { /* ... etc ... */ }
-        function updatePeriodLabel(period) { /* ... etc ... */ }
-        function clearHistory() { /* ... etc ... */ }
+        function saveTotalTips() {
+            const totalTips = document.getElementById('total-tips').value;
+            localStorage.setItem(TIPS_KEY, totalTips);
+        }
 
+        function loadTotalTips() {
+            const totalTips = localStorage.getItem(TIPS_KEY) || '100';
+            document.getElementById('total-tips').value = totalTips;
+        }
+
+        function calculateTips() {
+            saveEmployees();
+            const totalTips = parseFloat(document.getElementById('total-tips').value) || 0;
+            const employees = JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || '[]');
+            
+            let totalHours = 0;
+            employees.forEach(emp => {
+                totalHours += parseFloat(emp.hours) || 0;
+            });
+
+            const tipRate = totalHours > 0 ? totalTips / totalHours : 0;
+            
+            document.getElementById('total-hours-output').textContent = totalHours.toFixed(2);
+            document.getElementById('tip-rate-output').textContent = \`\${tipRate.toFixed(2)} €\`;
+            
+            const sharesDiv = document.getElementById('individual-shares');
+            sharesDiv.innerHTML = '';
+            
+            const calculationResult = {
+                date: new Date().toLocaleString('fr-FR'),
+                totalTips: totalTips.toFixed(2),
+                totalHours: totalHours.toFixed(2),
+                tipRate: tipRate.toFixed(2),
+                shares: []
+            };
+
+            employees.forEach(emp => {
+                const hours = parseFloat(emp.hours) || 0;
+                const share = hours * tipRate;
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = \`<span>\${emp.name}:</span> <span class="highlight">\${share.toFixed(2)} €</span>\`;
+                sharesDiv.appendChild(resultItem);
+
+                calculationResult.shares.push({ name: emp.name, share: share.toFixed(2) });
+            });
+
+            document.getElementById('results').style.display = 'block';
+            saveToHistory(calculationResult);
+        }
+
+        function saveToHistory(result) {
+            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            history.unshift(result);
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            const historyDiv = document.getElementById('history-list');
+            historyDiv.innerHTML = '';
+
+            if (history.length === 0) {
+                historyDiv.innerHTML = '<p>Aucun calcul enregistré.</p>';
+                return;
+            }
+
+            history.forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'history-entry';
+                
+                let sharesHTML = entry.shares.map(s => \`<li>\${s.name}: \${s.share} €</li>\`).join('');
+                
+                entryDiv.innerHTML = \`
+                    <strong>\${entry.date}</strong><br>
+                    Total: \${entry.totalTips} € | Taux: \${entry.tipRate} €/h
+                    <ul>\${sharesHTML}</ul>
+                \`;
+                historyDiv.appendChild(entryDiv);
+            });
+        }
+        
+        function clearHistory() {
+            if (confirm("Êtes-vous sûr de vouloir effacer tout l'historique ?")) {
+                localStorage.removeItem(HISTORY_KEY);
+                loadHistory();
+            }
+        }
     </script>
 </body>
 </html>
