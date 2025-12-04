@@ -1,362 +1,2373 @@
-
 <!DOCTYPE html>
+
 <html lang="fr">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>TipShare - Calculateur de Pourboires</title>
+
     <style>
+
+        /* * STYLES CSS INCLUS ICI (Pour la simplicité du fichier unique) */
+
         body {
+
             font-family: 'Arial', sans-serif;
+
             background-color: #f4f7f6;
+
             margin: 0;
+
             padding: 20px;
+
             color: #333;
+
         }
+
         .container {
+
             position: relative;
+
             max-width: 700px;
+
             margin: auto;
+
             background: #ffffff;
+
             padding: 30px;
+
             border-radius: 10px;
+
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
         }
+
         h1 {
+
             color: #4CAF50;
+
             text-align: center;
+
             margin-bottom: 25px;
+
         }
+
         .section {
+
             border: 1px solid #ddd;
+
             padding: 15px;
+
             margin-bottom: 20px;
+
             border-radius: 8px;
+
             background-color: #fafafa;
+
         }
+
+        /* Conteneur de gestion des permissions (Mode Responsable) */
+
         .admin-controls-container input:disabled,
+
         .admin-controls-container select:disabled,
+
         .admin-controls-container button:disabled:not(.remove-btn) {
+
             background-color: #e9ecef;
+
             cursor: not-allowed;
+
             border-color: #ced4da;
+
             opacity: 0.8;
+
         }
+
         label {
+
             display: block;
+
             margin-bottom: 5px;
+
             font-weight: bold;
+
         }
-        input[type="number"], input[type="text"], select {
-            width: calc(100% - 22px);
+
+        input[type="number"],
+
+        input[type="text"],
+
+        input[type="password"],
+
+        input[type="email"],
+
+        select {
+
+            width: calc(100% - 12px);
+
             padding: 10px;
+
             margin-bottom: 15px;
+
             border: 1px solid #ccc;
+
             border-radius: 5px;
+
             box-sizing: border-box;
+
         }
+
         button {
+
             background-color: #4CAF50;
+
             color: white;
+
             padding: 12px 20px;
+
             border: none;
+
             border-radius: 5px;
+
             cursor: pointer;
+
             font-size: 16px;
+
             width: 100%;
+
             transition: background-color 0.3s;
+
             margin-top: 5px;
+
         }
+
         button:hover {
+
             background-color: #45a049;
+
         }
+
+        /* ======================================= */
+
+        /* STYLES POUR LE STATUT EN HAUT À DROITE */
+
         #header-status {
+
             position: absolute;
+
             top: 20px;
+
             right: 20px;
+
             text-align: right;
+
             font-size: 0.95em;
-        }
-        #admin-status {
-            font-weight: bold;
-            padding: 3px 6px;
-            border-radius: 3px;
-            display: inline-block;
-            background-color: #28a745;
-            color: white;
-        }
-        #login-button {
-            width: auto;
-            padding: 8px 15px;
-            background-color: #007bff;
-            font-size: 0.9em;
-        }
-        #login-button.logout {
-            background-color: #dc3545;
-        }
-        .employee-input-group {
-            display: grid;
-            grid-template-columns: 2fr 1fr 40px;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-        .employee-input-group input {
-            margin-bottom: 0;
-        }
-        .remove-btn {
-            background-color: #f44336;
-            width: 35px;
-            height: 35px;
-            padding: 0;
-            font-size: 18px;
-            line-height: 35px;
-            text-align: center;
-        }
-        .remove-btn:hover {
-            background-color: #d32f2f;
-        }
-        #results {
-            margin-top: 25px;
-            padding: 20px;
-            border-top: 2px solid #4CAF50;
+
+            padding: 5px 10px;
+
             background-color: #e8f5e9;
-            border-radius: 8px;
-        }
-        #results h2 {
-            color: #388e3c;
-            margin-top: 0;
-        }
-        .result-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dotted #ccc;
-        }
-        .highlight {
-            font-weight: bold;
-        }
-        .history-entry {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
+
             border-radius: 5px;
-            background-color: #fff;
+
+            border: 1px solid #4CAF50;
+
+            z-index: 10;
+
         }
+
+        #header-status strong {
+
+            color: #4CAF50;
+
+            font-size: 1.1em;
+
+            margin-right: 10px;
+
+        }
+
+        #header-status .logout-button {
+
+            background-color: #dc3545;
+
+            width: auto;
+
+            padding: 4px 8px;
+
+            font-size: 0.8em;
+
+            margin: 0;
+
+            margin-left: 10px;
+
+            display: inline-block;
+
+            vertical-align: middle;
+
+        }
+
+        #header-status .logout-button:hover {
+
+            background-color: #c82333;
+
+        }
+
+        /* Styles de la zone Admin/Statut Responsable */
+
+        #admin-status {
+
+            font-weight: bold;
+
+            padding: 3px 6px;
+
+            border-radius: 3px;
+
+            display: inline-block;
+
+            background-color: #28a745;
+
+            color: white;
+
+            margin-right: 10px;
+
+        }
+
+        /* ======================================= */
+
+        /* Styles pour les champs de saisie détaillés */
+
+        .tips-input-detail {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 10px;
+
+            margin-top: 10px;
+
+            padding: 10px;
+
+            border: 1px dashed #4CAF50;
+
+            border-radius: 5px;
+
+            background-color: #f0fff0;
+
+        }
+
+        .tips-input-detail label {
+
+            font-weight: normal;
+
+        }
+
+        .tips-input-detail input {
+
+            margin-bottom: 0;
+
+            width: 90%;
+
+        }
+
+        /* Styles pour la liste des employés */
+
+        #employee-list {
+
+            margin-top: 15px;
+
+            border-top: 1px solid #eee;
+
+            padding-top: 10px;
+
+        }
+
+        .employee-input-group {
+
+            /* 3 colonnes: Nom | Heures | Boutons */
+
+            display: grid;
+
+            grid-template-columns: 2fr 1fr 120px;
+
+            gap: 10px;
+
+            margin-bottom: 10px;
+
+            align-items: center;
+
+        }
+
+        .employee-input-group input {
+
+            margin-bottom: 0;
+
+        }
+
+        .remove-btn {
+
+            background-color: #f44336;
+
+            width: 35px;
+
+            padding: 8px 0;
+
+            font-size: 14px;
+
+            margin-left: 5px;
+
+        }
+
+        .remove-btn:hover {
+
+            background-color: #d32f2f;
+
+        }
+
+        /* Styles pour la connexion */
+
+        #login-section,
+
+        #employee-input-section {
+
+            border: 1px solid #ccc;
+
+            padding: 15px;
+
+            margin-bottom: 20px;
+
+            border-radius: 8px;
+
+        }
+
+        /* Styles pour les résultats */
+
+        #results {
+
+            margin-top: 25px;
+
+            padding: 20px;
+
+            border-top: 2px solid #4CAF50;
+
+            background-color: #e8f5e9;
+
+            border-radius: 8px;
+
+        }
+
+        #results h2 {
+
+            color: #388e3c;
+
+            margin-top: 0;
+
+        }
+
+        .result-item {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            padding: 8px 0;
+
+            border-bottom: 1px dotted #ccc;
+
+        }
+
+        .result-item:last-child {
+
+            border-bottom: none;
+
+        }
+
+        .highlight {
+
+            font-weight: bold;
+
+            color: #000;
+
+        }
+
+        /* Styles pour l'historique */
+
+        .history-entry {
+
+            border: 1px solid #ddd;
+
+            padding: 10px;
+
+            margin-bottom: 10px;
+
+            border-radius: 5px;
+
+            background-color: #fff;
+
+            position: relative;
+
+        }
+
+        .history-header {
+
+            font-weight: bold;
+
+            color: #4CAF50;
+
+            display: flex;
+
+            justify-content: space-between;
+
+        }
+
+        .history-details {
+
+            font-size: 0.9em;
+
+            color: #555;
+
+            margin-top: 5px;
+
+        }
+
+        .history-delete-btn {
+
+            background-color: #f44336;
+
+            color: white;
+
+            padding: 5px 10px;
+
+            border: none;
+
+            border-radius: 3px;
+
+            cursor: pointer;
+
+            font-size: 0.8em;
+
+            width: auto;
+
+            margin: 0;
+
+        }
+
+        .share-item-paid {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding-right: 5px;
+
+            margin-top: 3px;
+
+        }
+
+        .share-item-paid.is-paid {
+
+            text-decoration: line-through;
+
+            color: #888;
+
+        }
+
+        .share-item-paid label {
+
+            margin-left: 5px;
+
+            font-size: 0.95em;
+
+        }
+
     </style>
+
 </head>
+
 <body onload="loadDataAndInitialize()">
+
     <div class="container">
-        <div id="header-status">
-            <button id="login-button" onclick="toggleAdminMode()">Login Responsable</button>
+
+        <div id="header-status"></div>
+
+        <h1>💰 TipShare : Calculateur de Pourboires par Heure</h1>
+
+        <div id="login-section">
+
+            <h2>👤 Connexion Employé</h2>
+
+            <div id="login-form">
+
+                <label for="login-name">Nom d'utilisateur :</label>
+
+                <input type="text" id="login-name" placeholder="Votre nom" required>
+
+                <label for="login-password">Mot de passe :</label>
+
+                <input type="password" id="login-password" placeholder="Mot de passe" required>
+
+                <button onclick="loginEmployee()" style="background-color: #28a745;">Se Connecter</button>
+
+                
+
+                </div>
+
+            </div>
+
+        <div id="employee-input-section" class="section" style="display:none;">
+
+            <h2>2. ⏰ Mes Heures Travaillées</h2>
+
+            <label for="user-hours-input">Heures travaillées pour cette période :</label>
+
+            <input type="number" id="user-hours-input" min="0" step="0.5" oninput="saveUserHours()">
+
         </div>
 
-        <h1>💰 TipShare : Calculateur de Pourboires</h1>
+        <hr>
 
-        <fieldset id="admin-controls-container" disabled>
-            <div class="section">
-                <h2>1. 💶 Montant Total des Pourboires</h2>
-                <label for="total-tips">Montant total (€) :</label>
-                <input type="number" id="total-tips" value="100" min="0" step="0.01" oninput="saveTotalTips()">
-            </div>
+        <fieldset id="admin-controls-container" class="admin-controls-container" disabled>
 
             <div class="section">
-                <h2>2. 🧑‍🤝‍🧑 Employés et Heures</h2>
-                <div id="employee-list"></div>
-                <button type="button" onclick="addEmployeeField()">➕ Ajouter un Employé</button>
+
+                <h2>1. 💶 Saisie du Montant Total</h2>
+
+                <label for="tips-period">Période de pourboires :</label>
+
+                <select id="tips-period" onchange="saveTotalTips(); updateInputFields()">
+
+                    <option value="jour">Jour</option>
+
+                    <option value="semaine">Semaine</option>
+
+                    <option value="mois">Mois</option>
+
+                </select>
+
+                <div id="simple-tips-input">
+
+                    <label for="total-tips">
+
+                        <span id="total-tips-label">Montant total des pourboires (Jour) (€) :</span>
+
+                    </label>
+
+                    <input type="number" id="total-tips" value="100" min="0" step="0.01" oninput="saveTotalTips()"
+
+                        required>
+
+                </div>
+
+                <div id="tips-daily-inputs" style="display:none;" class="tips-input-detail">
+
+                </div>
+
+                <div id="tips-weekly-inputs" style="display:none;" class="tips-input-detail">
+
+                </div>
+
+                <p style="text-align: center; font-size: 0.9em; margin-top: 10px;">
+
+                    Total consolidé : <strong id="consolidated-total">0.00 €</strong>
+
+                </p>
+
             </div>
 
-            <button type="button" onclick="calculateTips()">Calculer la Répartition</button>
-        </fieldset>
-        
-        <div id="results" style="display:none;">
-            <h2>Résultats</h2>
-            <div class="result-item">
-                <span>Total des Heures :</span>
-                <span id="total-hours-output" class="highlight">0</span>
-            </div>
-            <div class="result-item">
-                <span>Taux par Heure :</span>
-                <span id="tip-rate-output" class="highlight">0.00 €</span>
-            </div>
             <hr>
-            <div id="individual-shares"></div>
+
+            <div class="section">
+
+                <h2>3. 🧑‍🤝‍🧑 Liste des Employés Enregistrés</h2>
+
+                <div id="employee-list">
+
+                </div>
+
+                <button type="button" id="add-employee-button" onclick="addEmployeeField()">➕ Ajouter un Employé</button>
+
+                
+
+                <button type="button" id="save-employee-list-button" onclick="saveEmployees(null, null, true); alert('Liste des employés enregistrée.')" 
+
+                    style="background-color: #007bff; margin-top: 10px;">
+
+                    💾 Enregistrer les modifications de la liste
+
+                </button>
+
+            </div>
+
+            <button type="button" id="calculate-button" onclick="calculateTips()">Calculer la Répartition (Responsable)</button>
+
+        </fieldset>
+
+        <hr>
+
+        <div id="results" style="display:none;">
+
+            <h2>4. Résultats de la Répartition</h2>
+
+            <div class="result-item">
+
+                <span id="period-label">Total des Heures Travaillées :</span>
+
+                <span id="total-hours-output" class="highlight">0</span>
+
+            </div>
+
+            <div class="result-item">
+
+                <span>Taux de Pourboire par Heure :</span>
+
+                <span id="tip-rate-output" class="highlight">0.00 €</span>
+
+            </div>
+
+            <hr style="margin: 10px 0;">
+
+            <div id="individual-shares">
+
+            </div>
+
+            <hr style="margin: 10px 0;">
+
+            <div class="result-item">
+
+                <span>Total Distribué :</span>
+
+                <span id="distributed-total" class="highlight">0.00 €</span>
+
+            </div>
+
         </div>
 
         <div class="section">
-            <h2>Historique</h2>
-            <div id="history-list"></div>
-            <button id="clear-history-btn" style="display:none;" onclick="clearHistory()">Effacer l'Historique</button>
+
+            <h2>5. Historique des Répartitions 🕰️</h2>
+
+            <div id="history-list">
+
+                <p id="no-history-message">Aucun calcul n'a été enregistré.</p>
+
+            </div>
+
+            <button id="clear-history-btn" type="button" onclick="clearHistory()"
+
+                style="background-color: #f44336; display: none;">Effacer l'Historique</button>
+
         </div>
+
     </div>
 
     <script>
-        const EMPLOYEES_KEY = 'tipshare_employees';
-        const TIPS_KEY = 'tipshare_total_tips';
-        const HISTORY_KEY = 'tipshare_history';
+
+        // Clés de stockage
+
+        const EMPLOYEE_ACCOUNTS_KEY = 'tipshare_employee_accounts';
+
+        const EMPLOYEE_HOURS_KEY = 'tipshare_employee_hours';
+
+        const LOGGED_IN_USER_KEY = 'tipshare_logged_in_user';
+
+        const TIPS_STORAGE_KEY = 'tipshare_total_tips';
+
+        const DAILY_TIPS_STORAGE_KEY = 'tipshare_daily_tips';
+
+        const WEEKLY_TIPS_STORAGE_KEY = 'tipshare_weekly_tips';
+
+        const PERIOD_STORAGE_KEY = 'tipshare_period';
+
+        const HISTORY_STORAGE_KEY = 'tipshare_history';
+
         const ADMIN_STATE_KEY = 'tipshare_admin_active';
-        const ADMIN_PASSWORD = '-Guigui951-';
+
+        const LAST_USERNAME_KEY = 'tipshare_last_username'; 
+
+        // MOT DE PASSE SUPER ADMIN ET NOM D'UTILISATEUR ADMINISTRATEUR INTERNE
+
+        const ADMIN_PASSWORD = '-Guigui951-'; 
+
+        const ADMIN_USERNAME = 'Responsable'; // Nom d'utilisateur pour la connexion Responsable
+
+        const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+
+        const weeksOfMonth = ["Semaine 1", "Semaine 2", "Semaine 3", "Semaine 4", "Semaine 5"];
+
+        // État global de l'utilisateur connecté
+
+        let currentUser = null;
+
+        // ----------------------------------------------------
+
+        // INITIALISATION & DONNÉES DE BASE
+
+        // ----------------------------------------------------
 
         function loadDataAndInitialize() {
-            loadEmployees();
-            loadTotalTips();
-            loadHistory();
-            checkAdminMode();
-        }
 
-        function toggleAdminMode() {
-            if (localStorage.getItem(ADMIN_STATE_KEY) === 'true') {
-                localStorage.setItem(ADMIN_STATE_KEY, 'false');
-                alert('Mode Responsable désactivé.');
-            } else {
-                const password = prompt('Veuillez entrer le mot de passe Responsable :');
-                if (password === ADMIN_PASSWORD) {
-                    localStorage.setItem(ADMIN_STATE_KEY, 'true');
-                    alert('Mode Responsable activé.');
-                } else if (password) {
-                    alert('Mot de passe incorrect.');
-                }
-            }
-            checkAdminMode();
-        }
+            initializeEmployeeAccounts();
 
-        function checkAdminMode() {
-            const adminActive = localStorage.getItem(ADMIN_STATE_KEY) === 'true';
-            document.getElementById('admin-controls-container').disabled = !adminActive;
-            const loginButton = document.getElementById('login-button');
-            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            const lastLoggedInUser = localStorage.getItem(LOGGED_IN_USER_KEY);
+
+            const isAdminStored = localStorage.getItem(ADMIN_STATE_KEY) === 'true';
+
+            // 1. Initialiser l'état à déconnecté par défaut
+
+            currentUser = null;
+
+            localStorage.setItem(ADMIN_STATE_KEY, 'false');
+
             
-            if (adminActive) {
-                loginButton.textContent = 'Logout Responsable';
-                loginButton.classList.add('logout');
-                clearHistoryBtn.style.display = 'block';
-            } else {
-                loginButton.textContent = 'Login Responsable';
-                loginButton.classList.remove('logout');
-                clearHistoryBtn.style.display = 'none';
-            }
-        }
 
-        function addEmployeeField(name = '', hours = '') {
-            const list = document.getElementById('employee-list');
-            const div = document.createElement('div');
-            div.className = 'employee-input-group';
-            div.innerHTML = \`
-                <input type="text" placeholder="Nom de l'employé" value="\${name}" oninput="saveEmployees()">
-                <input type="number" placeholder="Heures" value="\${hours}" min="0" step="0.5" oninput="saveEmployees()">
-                <button class="remove-btn" onclick="this.parentElement.remove(); saveEmployees();">×</button>
-            \`;
-            list.appendChild(div);
-        }
+            // 2. Tenter de rétablir l'état si l'utilisateur était censé être connecté
 
-        function saveEmployees() {
-            const employees = [];
-            document.querySelectorAll('.employee-input-group').forEach(group => {
-                const name = group.children[0].value.trim();
-                const hours = group.children[1].value;
-                if (name) {
-                    employees.push({ name, hours });
+            if (lastLoggedInUser) {
+
+                // Pour l'Admin, on vérifie juste la clé stockée
+
+                if (lastLoggedInUser === ADMIN_USERNAME && isAdminStored) {
+
+                    currentUser = ADMIN_USERNAME;
+
+                    localStorage.setItem(ADMIN_STATE_KEY, 'true');
+
+                } 
+
+                // Pour un employé standard, on s'assure que le compte existe toujours
+
+                else if (lastLoggedInUser !== ADMIN_USERNAME) {
+
+                    const accounts = getEmployeeAccounts();
+
+                    const employeeExists = accounts.some(acc => acc.name === lastLoggedInUser);
+
+                    if (employeeExists) {
+
+                        currentUser = lastLoggedInUser;
+
+                        localStorage.setItem(ADMIN_STATE_KEY, 'false');
+
+                    } else {
+
+                        // L'employé n'existe plus, forcer la déconnexion
+
+                        localStorage.removeItem(LOGGED_IN_USER_KEY);
+
+                    }
+
                 }
+
+            }
+
+            
+
+            // 3. Mettre à jour l'UI
+
+            updateLoginUI(false); 
+
+            checkAdminMode(false); 
+
+            loadTotalTips();
+
+            loadHistory();
+
+            updateInputFields();
+
+            
+
+            // Pré-remplir le dernier nom d'utilisateur (pour faciliter la reconnexion)
+
+            const lastUsername = localStorage.getItem(LAST_USERNAME_KEY);
+
+            if (lastUsername) {
+
+                document.getElementById('login-name').value = lastUsername;
+
+            }
+
+        }
+
+        /**
+
+         * Initialise un compte par défaut si la liste est vide.
+
+         */
+
+        function initializeEmployeeAccounts() {
+
+            let accountsJSON = localStorage.getItem(EMPLOYEE_ACCOUNTS_KEY);
+
+            if (!accountsJSON) {
+
+                // Création d'un compte de base si c'est la première exécution
+
+                const defaultAccounts = [
+
+                    { name: "Antoine", password: "123" },
+
+                    { name: "Béatrice", password: "456" },
+
+                    { name: "Cédric", password: "789" }
+
+                ];
+
+                localStorage.setItem(EMPLOYEE_ACCOUNTS_KEY, JSON.stringify(defaultAccounts));
+
+                // Initialisation des heures par défaut (pour la première utilisation)
+
+                const defaultHours = {
+
+                    "Antoine": 40,
+
+                    "Béatrice": 30,
+
+                    "Cédric": 10
+
+                };
+
+                localStorage.setItem(EMPLOYEE_HOURS_KEY, JSON.stringify(defaultHours));
+
+            }
+
+        }
+
+        /**
+
+         * Récupère la liste des comptes employés.
+
+         */
+
+        function getEmployeeAccounts() {
+
+            const accountsJSON = localStorage.getItem(EMPLOYEE_ACCOUNTS_KEY);
+
+            return accountsJSON ? JSON.parse(accountsJSON) : [];
+
+        }
+
+        /**
+
+         * Récupère les heures enregistrées pour tous les employés.
+
+         */
+
+        function getEmployeeHours() {
+
+            const hoursJSON = localStorage.getItem(EMPLOYEE_HOURS_KEY);
+
+            return hoursJSON ? JSON.parse(hoursJSON) : {};
+
+        }
+
+        // ----------------------------------------------------
+
+        // GESTION DES SESSIONS (LOGIN/REGISTER)
+
+        // ----------------------------------------------------
+
+        // Suppression des fonctions showRegisterForm(), hideRegisterForm() et registerEmployee()
+
+        // car le bouton et le formulaire ont été retirés du HTML.
+
+        
+
+        /**
+
+         * Connecte un employé ou le Responsable.
+
+         */
+
+        function loginEmployee() {
+
+            const name = document.getElementById('login-name').value.trim();
+
+            const password = document.getElementById('login-password').value;
+
+            const loginPasswordInput = document.getElementById('login-password');
+
+            
+
+            if (!name || !password) {
+
+                 alert("Veuillez remplir le nom et le mot de passe.");
+
+                 return;
+
+            }
+
+            // 1. CHECK FOR ADMIN LOGIN (NOM D'UTILISATEUR "Responsable" ET MOT DE PASSE "-Guigui951-")
+
+            if (name.toLowerCase() === ADMIN_USERNAME.toLowerCase() && password === ADMIN_PASSWORD) {
+
+                // Successful Admin Login - Priorité absolue
+
+                localStorage.setItem(ADMIN_STATE_KEY, 'true');
+
+                currentUser = ADMIN_USERNAME; 
+
+                localStorage.setItem(LOGGED_IN_USER_KEY, currentUser);
+
+                localStorage.setItem(LAST_USERNAME_KEY, name); 
+
+                updateLoginUI(true); 
+
+                
+
+                loadEmployees(); 
+
+                checkAdminMode(false);
+
+                return;
+
+            }
+
+            
+
+            // 2. CHECK FOR STANDARD EMPLOYEE LOGIN
+
+            const accounts = getEmployeeAccounts();
+
+            const employee = accounts.find(acc => acc.name.toLowerCase() === name.toLowerCase() && acc.password === password);
+
+            if (employee) {
+
+                // Successful Employee Login
+
+                localStorage.setItem(ADMIN_STATE_KEY, 'false'); // S'assurer que le mode admin est désactivé
+
+                currentUser = employee.name;
+
+                localStorage.setItem(LOGGED_IN_USER_KEY, currentUser);
+
+                localStorage.setItem(LAST_USERNAME_KEY, employee.name);
+
+                updateLoginUI(true);
+
+            } else {
+
+                // 3. MESSAGE D'ERREUR CLAIR
+
+                alert("Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.");
+
+                // Effacer le mot de passe pour des raisons de sécurité
+
+                loginPasswordInput.value = '';
+
+            }
+
+        }
+
+        /**
+
+         * Déconnecte l'utilisateur courant.
+
+         */
+
+        function logoutEmployee() {
+
+            // Désactiver le mode Admin au moment de la déconnexion
+
+            localStorage.setItem(ADMIN_STATE_KEY, 'false');
+
+            localStorage.removeItem(LOGGED_IN_USER_KEY);
+
+            currentUser = null;
+
+            updateLoginUI(true);
+
+            // Recharger toutes les données pour l'interface de déconnexion
+
+            loadEmployees(); 
+
+            checkAdminMode(false);
+
+        }
+
+        /**
+
+         * Met à jour l'interface de connexion/saisie des heures.
+
+         */
+
+        function updateLoginUI(shouldAlert = false) {
+
+            const loginSection = document.getElementById('login-section');
+
+            const employeeInputSection = document.getElementById('employee-input-section');
+
+            const headerStatusDiv = document.getElementById('header-status');
+
+            const loginForm = document.getElementById('login-form');
+
+            const loginPasswordInput = document.getElementById('login-password');
+
+            // Mise à jour du statut dans le header
+
+            let headerContent = '';
+
+            const adminActive = localStorage.getItem(ADMIN_STATE_KEY) === 'true';
+
+            if (adminActive) {
+
+                // Le statut Responsable est visible uniquement s'il est actif
+
+                 headerContent += `<span id="admin-status">Mode Responsable ON</span>`;
+
+            }
+
+            if (currentUser) {
+
+                // Employé ou Responsable connecté
+
+                loginSection.style.display = 'none';
+
+                employeeInputSection.style.display = 'block';
+
+                headerContent += `
+
+                    Connecté : <strong>${currentUser}</strong> 
+
+                    <button onclick="logoutEmployee()" class="logout-button">Déconnexion</button>
+
+                `;
+
+                loadUserHours();
+
+            } else {
+
+                // Personne n'est connecté
+
+                if (shouldAlert) {
+
+                    alert("Déconnecté.");
+
+                }
+
+                loginSection.style.display = 'block';
+
+                employeeInputSection.style.display = 'none';
+
+                
+
+                // Cacher le statut Responsable s'il était là
+
+                headerContent = '';
+
+                loginForm.style.display = 'block';
+
+                
+
+                // Le nom reste, seul le mot de passe est effacé
+
+                loginPasswordInput.value = '';
+
+            }
+
+            
+
+            headerStatusDiv.innerHTML = headerContent;
+
+            
+
+            // Assure que le mode Responsable est géré
+
+            checkAdminMode(false);
+
+            
+
+            // Gère la visibilité du bouton de sauvegarde de liste et de calcul
+
+            updateEmployeeControlsVisibility();
+
+        }
+
+        /**
+
+         * Charge les heures de l'utilisateur connecté dans le champ de saisie.
+
+         */
+
+        function loadUserHours() {
+
+            if (currentUser === ADMIN_USERNAME) {
+
+                // Le Responsable n'a pas de champ de saisie d'heures
+
+                document.getElementById('user-hours-input').value = '';
+
+                document.getElementById('employee-input-section').style.display = 'none';
+
+                return;
+
+            }
+
+            
+
+            const allHours = getEmployeeHours();
+
+            const hours = allHours[currentUser] || 0;
+
+            document.getElementById('user-hours-input').value = hours > 0 ? hours : '';
+
+            document.getElementById('employee-input-section').style.display = 'block';
+
+        }
+
+        /**
+
+         * Sauvegarde les heures saisies par l'utilisateur connecté.
+
+         */
+
+        function saveUserHours() {
+
+            if (!currentUser || currentUser === ADMIN_USERNAME) return;
+
+            const hoursInput = document.getElementById('user-hours-input');
+
+            const hours = parseFloat(hoursInput.value) || 0;
+
+            let allHours = getEmployeeHours();
+
+            allHours[currentUser] = hours;
+
+            localStorage.setItem(EMPLOYEE_HOURS_KEY, JSON.stringify(allHours));
+
+            // S'assurer que le mode Responsable affiche la liste mise à jour si actif
+
+            if (localStorage.getItem(ADMIN_STATE_KEY) === 'true') {
+
+                loadEmployees();
+
+            }
+
+        }
+
+        // ----------------------------------------------------
+
+        // GESTION DU MODE RESPONSABLE
+
+        // ----------------------------------------------------
+
+        
+
+        /**
+
+         * Met à jour l'interface utilisateur en fonction de l'état du mode Responsable.
+
+         * Appelé après login/logout pour réinitialiser l'état.
+
+         */
+
+        function checkAdminMode(refreshEmployees = true) {
+
+            const adminActive = localStorage.getItem(ADMIN_STATE_KEY) === 'true';
+
+            const controlsFieldset = document.getElementById('admin-controls-container');
+
+            // Active/Désactive la zone de contrôle principale du Responsable
+
+            controlsFieldset.disabled = !adminActive; 
+
+            // Rafraîchir l'affichage des employés pour appliquer 'disabled' et afficher les heures
+
+            if (refreshEmployees) {
+
+                loadEmployees(); 
+
+            }
+
+            // Rafraîchir l'historique pour activer/désactiver les boutons de suppression
+
+            loadHistory();
+
+        }
+
+        /**
+
+         * Gère la visibilité des boutons de gestion des employés et de calcul.
+
+         */
+
+        function updateEmployeeControlsVisibility() {
+
+            const adminActive = localStorage.getItem(ADMIN_STATE_KEY) === 'true';
+
+            const saveButton = document.getElementById('save-employee-list-button');
+
+            const addButton = document.getElementById('add-employee-button');
+
+            const calculateButton = document.getElementById('calculate-button');
+
+            
+
+            // Si l'utilisateur est un employé standard, masquer tous les boutons de gestion/calcul
+
+            if (saveButton) {
+
+                saveButton.style.display = adminActive ? 'block' : 'none';
+
+            }
+
+            if (addButton) {
+
+                addButton.style.display = adminActive ? 'block' : 'none';
+
+            }
+
+            
+
+            // Masquer le bouton de calcul s'il n'est pas Responsable
+
+            if (calculateButton) {
+
+                calculateButton.style.display = adminActive ? 'block' : 'none';
+
+            }
+
+        }
+
+        // ----------------------------------------------------
+
+        // GESTION DES EMPLOYÉS (Liste Responsable)
+
+        // ----------------------------------------------------
+
+        /**
+
+         * Demande un nouveau mot de passe au Responsable et le met à jour.
+
+         */
+
+        function promptForNewPassword(employeeName) {
+
+            if (localStorage.getItem(ADMIN_STATE_KEY) !== 'true') return;
+
+            const newPassword = prompt(`Définir un nouveau mot de passe pour l'employé "${employeeName}" :`);
+
+            if (newPassword === null || newPassword.trim().length === 0) {
+
+                if (newPassword !== null) alert("Le mot de passe ne peut pas être vide.");
+
+                return;
+
+            }
+
+            const trimmedPassword = newPassword.trim();
+
+            // Vérification de la règle de sécurité (interdiction du mot de passe Admin)
+
+            if (trimmedPassword === ADMIN_PASSWORD) {
+
+                alert("Ce mot de passe est réservé au compte Responsable.");
+
+                return;
+
+            }
+
+            // Appel à la fonction de sauvegarde avec le nouveau mot de passe
+
+            saveEmployees(employeeName, trimmedPassword);
+
+            alert(`Le mot de passe de l'employé "${employeeName}" a été mis à jour avec succès.`);
+
+            
+
+            // Recharger la liste pour s'assurer que l'état de la liste est correct après un prompt
+
+            loadEmployees();
+
+        }
+
+        /**
+
+         * Demande le mot de passe initial pour un nouvel employé.
+
+         */
+
+        function promptForNewEmployeePassword(name) {
+
+            const password = prompt(`Veuillez définir le mot de passe initial pour le nouvel employé "${name}" :`);
+
+            
+
+            if (password === null || password.trim().length === 0) {
+
+                if (password !== null) alert("Le mot de passe ne peut pas être vide. Ajout annulé.");
+
+                loadEmployees(); // Recharger la liste sans l'employé
+
+                return;
+
+            }
+
+            const trimmedPassword = password.trim();
+
+            if (trimmedPassword === ADMIN_PASSWORD) {
+
+                alert("Ce mot de passe est réservé au compte Responsable. Ajout annulé.");
+
+                loadEmployees();
+
+                return;
+
+            }
+
+            
+
+            // Ajouter le nouveau compte immédiatement
+
+            let accounts = getEmployeeAccounts();
+
+            accounts.push({ name: name, password: trimmedPassword });
+
+            localStorage.setItem(EMPLOYEE_ACCOUNTS_KEY, JSON.stringify(accounts));
+
+            
+
+            alert(`L'employé "${name}" a été ajouté avec un mot de passe initial. Cliquez sur "Enregistrer les modifications de la liste" pour finaliser.`);
+
+            // Afficher le nouvel employé dans l'interface
+
+            loadEmployees(); 
+
+        }
+
+        /**
+
+         * Fonction de sauvegarde des comptes employés (nom et mdp).
+
+         * @param {string} [updateName=null] - Nom de l'employé à mettre à jour (pour le mot de passe).
+
+         * @param {string} [newPassword=null] - Nouveau mot de passe à définir.
+
+         * @param {boolean} [shouldReload=false] - Indique si la fonction doit recharger l'UI après sauvegarde (utilisé par le bouton explicite).
+
+         */
+
+        function saveEmployees(updateName = null, newPassword = null, shouldReload = false) {
+
+            const employeeGroups = document.querySelectorAll('.employee-input-group');
+
+            let accounts = getEmployeeAccounts();
+
+            let newAccounts = [];
+
+            let existingNames = []; 
+
+            // 1. Traiter les comptes basés sur l'affichage actuel (pour les heures et les modifications de MDP)
+
+            employeeGroups.forEach(group => {
+
+                const nameInput = group.querySelector('.employee-name');
+
+                const name = nameInput ? nameInput.value.trim() : '';
+
+                
+
+                if (name.length === 0 || existingNames.includes(name)) {
+
+                    return; 
+
+                }
+
+                existingNames.push(name);
+
+                let existingAccount = accounts.find(acc => acc.name === name);
+
+                let password = existingAccount ? existingAccount.password : '';
+
+                
+
+                // Gère la mise à jour de mot de passe (via le bouton jaune "Modifier MDP")
+
+                if (updateName && newPassword && name === updateName) {
+
+                    password = newPassword;
+
+                }
+
+                
+
+                // Si le compte a été ajouté via le prompt mais n'avait pas encore le mot de passe stocké (fallback)
+
+                if (password === '' && name !== ADMIN_USERNAME) {
+
+                     password = 'A_DEFINIR_PAR_ADMIN'; 
+
+                }
+
+                
+
+                newAccounts.push({ name, password });
+
             });
-            localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(employees));
+
+            
+
+            // 2. Ajouter le compte Responsable s'il n'est pas dans la liste (car il n'est pas affiché dans l'UI)
+
+            const adminAccount = accounts.find(acc => acc.name === ADMIN_USERNAME);
+
+            if (adminAccount && !newAccounts.some(acc => acc.name === ADMIN_USERNAME)) {
+
+                 newAccounts.push(adminAccount);
+
+            }
+
+            
+
+            // 3. Stocker la nouvelle liste
+
+            localStorage.setItem(EMPLOYEE_ACCOUNTS_KEY, JSON.stringify(newAccounts));
+
+            
+
+            // Si le bouton de validation est cliqué, on rafraichit la liste pour confirmer la sauvegarde visuellement
+
+            if (shouldReload) {
+
+                loadEmployees(); 
+
+            }
+
+        }
+
+        
+
+        /**
+
+         * Sauvegarde les heures d'un employé spécifique, utilisée par l'Admin.
+
+         * @param {string} employeeName - Le nom de l'employé dont on met à jour les heures.
+
+         * @param {HTMLInputElement} inputElement - L'élément input d'où vient la valeur.
+
+         */
+
+        function saveEmployeeHoursByAdmin(employeeName, inputElement) {
+
+            if (localStorage.getItem(ADMIN_STATE_KEY) !== 'true') return;
+
+            const hours = parseFloat(inputElement.value) || 0;
+
+            
+
+            let allHours = getEmployeeHours();
+
+            
+
+            // Correction : S'assurer que l'objet existe si l'employé n'avait pas d'heures avant.
+
+            allHours[employeeName] = hours;
+
+            
+
+            localStorage.setItem(EMPLOYEE_HOURS_KEY, JSON.stringify(allHours));
+
+            
+
+            // Optionnel: Mettre à jour l'input pour retirer le zéro si la valeur est 0, ou laisser le nombre.
+
+            inputElement.value = hours > 0 ? hours : '';
+
+        }
+
+        /**
+
+         * Crée un champ d'affichage des employés pour le Responsable.
+
+         */
+
+        function createEmployeeField(name = '', hours = 0) {
+
+            const list = document.getElementById('employee-list');
+
+            const newGroup = document.createElement('div');
+
+            newGroup.className = 'employee-input-group';
+
+            const isAdmin = localStorage.getItem(ADMIN_STATE_KEY) === 'true';
+
+            // Afficher la valeur ou laisser vide si 0
+
+            const hoursFormatted = hours > 0 ? hours : '';
+
+            
+
+            // Les champs ne sont cliquables qu'en mode Responsable
+
+            const disabledAttribute = isAdmin ? '' : 'disabled';
+
+            const removeButtonDisabled = isAdmin ? '' : 'disabled';
+
+            
+
+            // Le champ des heures est un <input type="number"> et est modifiable par l'Admin
+
+            const hoursInputHTML = `
+
+                <input type="number" 
+
+                    value="${hoursFormatted}" 
+
+                    placeholder="0"
+
+                    id="hours-input-${name.replace(/\s/g, '-')}"
+
+                    class="employee-hours" 
+
+                    min="0" 
+
+                    step="0.5"
+
+                    oninput="saveEmployeeHoursByAdmin('${name}', this)"
+
+                    ${disabledAttribute}
+
+                    style="background-color: ${isAdmin ? '#fff' : '#f0f0f0'}; padding-right: 2px; text-align: right;">
+
+            `;
+
+            
+
+            // Bouton pour la modification du mot de passe
+
+            const passwordButtonHTML = isAdmin ? 
+
+                `<button type="button" 
+
+                    onclick="promptForNewPassword('${name}')" 
+
+                    style="background-color: #ffc107; color: #343a40; padding: 5px 10px; width: auto; font-size: 0.8em; margin: 0;">
+
+                    Modifier MDP
+
+                </button>` : '';
+
+            // Le champ du nom est désactivé (disabled) pour forcer l'Admin à utiliser les boutons "Ajouter" et "Supprimer"
+
+            newGroup.innerHTML = `
+
+                <input type="text" placeholder="Nom de l'employé" value="${name}" class="employee-name"
+
+                    required disabled> 
+
+                ${hoursInputHTML}
+
+                <div style="display: flex; align-items: center; justify-content: flex-end;">
+
+                    ${passwordButtonHTML}
+
+                    <button class="remove-btn" onclick="removeEmployee('${name}', this.parentNode.parentNode)" ${removeButtonDisabled}>X</button>
+
+                </div>
+
+            `;
+
+            list.appendChild(newGroup);
+
+        }
+
+        /**
+
+         * Supprime un employé du système (Responsable uniquement).
+
+         */
+
+        function removeEmployee(name, node) {
+
+            if (localStorage.getItem(ADMIN_STATE_KEY) !== 'true') return;
+
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer l'employé ${name} ? Cela effacera aussi son mot de passe et ses heures enregistrées.`)) {
+
+                return;
+
+            }
+
+            // 1. Supprimer le compte
+
+            let accounts = getEmployeeAccounts();
+
+            accounts = accounts.filter(acc => acc.name !== name);
+
+            localStorage.setItem(EMPLOYEE_ACCOUNTS_KEY, JSON.stringify(accounts));
+
+            // 2. Supprimer les heures
+
+            let allHours = getEmployeeHours();
+
+            delete allHours[name];
+
+            localStorage.setItem(EMPLOYEE_HOURS_KEY, JSON.stringify(allHours));
+
+            // 3. Supprimer l'élément de l'interface
+
+            node.remove();
+
+            
+
+            // 4. Mettre à jour la liste stockée après la suppression
+
+            saveEmployees(); // L'appel sans arguments force une resauvegarde de la liste DOM actuelle (qui est maintenant correcte).
+
+        }
+
+        /**
+
+         * Déclenche la procédure d'ajout de nouvel employé (Nom et MDP).
+
+         */
+
+        function addEmployeeField() {
+
+            if (localStorage.getItem(ADMIN_STATE_KEY) !== 'true') return;
+
+            const newName = prompt("Veuillez saisir le NOM du nouvel employé :").trim();
+
+            if (newName === null || newName.length === 0) {
+
+                if (newName !== null) alert("Le nom de l'employé ne peut pas être vide. Ajout annulé.");
+
+                return;
+
+            }
+
+            
+
+            // Vérification des doublons ou du nom Admin
+
+            let accounts = getEmployeeAccounts();
+
+            if (accounts.some(acc => acc.name.toLowerCase() === newName.toLowerCase()) || newName.toLowerCase() === ADMIN_USERNAME.toLowerCase()) {
+
+                alert(`Le nom d'utilisateur "${newName}" est déjà utilisé ou réservé.`);
+
+                return;
+
+            }
+
+            // Procéder à la demande de mot de passe
+
+            promptForNewEmployeePassword(newName);
+
         }
 
         function loadEmployees() {
-            const employees = JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || '[]');
-            document.getElementById('employee-list').innerHTML = '';
-            employees.forEach(emp => addEmployeeField(emp.name, emp.hours));
+
+            const accounts = getEmployeeAccounts();
+
+            const allHours = getEmployeeHours();
+
+            const list = document.getElementById('employee-list');
+
+            list.innerHTML = '';
+
+            
+
+            // Gère la visibilité des contrôles
+
+            updateEmployeeControlsVisibility();
+
+            if (accounts.length === 0) {
+
+                // Si pas d'employés, laisser la liste vide (le bouton "Ajouter" est toujours là)
+
+                return;
+
+            }
+
+            accounts.forEach(account => {
+
+                const hours = allHours[account.name] || 0;
+
+                // Ne pas afficher l'entrée "Responsable" dans la liste d'édition
+
+                if (account.name !== ADMIN_USERNAME) {
+
+                    createEmployeeField(account.name, hours);
+
+                }
+
+            });
+
+        }
+
+        // ----------------------------------------------------
+
+        // GESTION DU MONTANT DES POURBOIRES & HISTORIQUE
+
+        // ----------------------------------------------------
+
+        function updateTipsLabel(period) {
+
+            const labelSpan = document.getElementById('total-tips-label');
+
+            let text = 'Montant total des pourboires (€) :';
+
+            switch (period) {
+
+                case 'semaine':
+
+                    text = 'Montant total des pourboires (Semaine) (€) :';
+
+                    break;
+
+                case 'mois':
+
+                    text = 'Montant total des pourboires (Mois) (€) :';
+
+                    break;
+
+                case 'jour':
+
+                default:
+
+                    text = 'Montant total des pourboires (Jour) (€) :';
+
+                    break;
+
+            }
+
+            if (labelSpan) {
+
+                labelSpan.textContent = text;
+
+            }
+
+        }
+
+        function updateInputFields() {
+
+            const period = document.getElementById('tips-period').value;
+
+            const simpleInputDiv = document.getElementById('simple-tips-input');
+
+            const dailyInputsDiv = document.getElementById('tips-daily-inputs');
+
+            const weeklyInputsDiv = document.getElementById('tips-weekly-inputs');
+
+            dailyInputsDiv.style.display = 'none';
+
+            weeklyInputsDiv.style.display = 'none';
+
+            simpleInputDiv.style.display = 'block';
+
+            if (period === 'jour') {
+
+                loadTotalTips();
+
+            } else if (period === 'semaine') {
+
+                simpleInputDiv.style.display = 'none';
+
+                dailyInputsDiv.style.display = 'grid';
+
+                loadDailyTips();
+
+            } else if (period === 'mois') {
+
+                simpleInputDiv.style.display = 'none';
+
+                weeklyInputsDiv.style.display = 'grid';
+
+                loadWeeklyTips();
+
+            }
+
+            updateTipsLabel(period);
+
+            updatePeriodLabel(period);
+
+            calculateConsolidatedTotal();
+
+        }
+
+        function calculateConsolidatedTotal() {
+
+            const period = document.getElementById('tips-period').value;
+
+            let total = 0;
+
+            if (period === 'jour') {
+
+                total = parseFloat(document.getElementById('total-tips').value) || 0;
+
+            } else if (period === 'semaine') {
+
+                const dailyInputs = document.querySelectorAll('#tips-daily-inputs input');
+
+                dailyInputs.forEach(input => {
+
+                    total += parseFloat(input.value) || 0;
+
+                });
+
+            } else if (period === 'mois') {
+
+                const weeklyInputs = document.querySelectorAll('#tips-weekly-inputs input');
+
+                weeklyInputs.forEach(input => {
+
+                    total += parseFloat(input.value) || 0;
+
+                });
+
+            } else {
+
+                total = parseFloat(document.getElementById('total-tips').value) || 0;
+
+            }
+
+            document.getElementById('consolidated-total').textContent = total.toFixed(2) + ' €';
+
+            return total;
+
+        }
+
+        function saveDailyTips() {
+
+            const dailyInputs = document.querySelectorAll('#tips-daily-inputs input');
+
+            const tips = Array.from(dailyInputs).map(input => parseFloat(input.value) || 0);
+
+            localStorage.setItem(DAILY_TIPS_STORAGE_KEY, JSON.stringify(tips));
+
+            calculateConsolidatedTotal();
+
+        }
+
+        function loadDailyTips() {
+
+            const container = document.getElementById('tips-daily-inputs');
+
+            container.innerHTML = '';
+
+            const savedTipsJSON = localStorage.getItem(DAILY_TIPS_STORAGE_KEY);
+
+            const savedTips = savedTipsJSON ? JSON.parse(savedTipsJSON) : Array(7).fill('');
+
+            daysOfWeek.forEach((day, index) => {
+
+                const dayValue = savedTips[index] !== 0 ? savedTips[index] : '';
+
+                const label = document.createElement('label');
+
+                label.setAttribute('for', `tip-day-${index}`);
+
+                label.textContent = `${day} (€) :`;
+
+                const input = document.createElement('input');
+
+                input.type = 'number';
+
+                input.id = `tip-day-${index}`;
+
+                input.value = dayValue;
+
+                input.min = '0';
+
+                input.step = '0.01';
+
+                input.oninput = saveDailyTips;
+
+                input.required = true;
+
+                container.appendChild(label);
+
+                container.appendChild(input);
+
+            });
+
+            calculateConsolidatedTotal();
+
+        }
+
+        function saveWeeklyTips() {
+
+            const weeklyInputs = document.querySelectorAll('#tips-weekly-inputs input');
+
+            const tips = Array.from(weeklyInputs).map(input => parseFloat(input.value) || 0);
+
+            localStorage.setItem(WEEKLY_TIPS_STORAGE_KEY, JSON.stringify(tips));
+
+            calculateConsolidatedTotal();
+
+        }
+
+        function loadWeeklyTips() {
+
+            const container = document.getElementById('tips-weekly-inputs');
+
+            container.innerHTML = '';
+
+            const savedTipsJSON = localStorage.getItem(WEEKLY_TIPS_STORAGE_KEY);
+
+            const savedTips = savedTipsJSON ? JSON.parse(savedTipsJSON) : Array(5).fill('');
+
+            weeksOfMonth.forEach((week, index) => {
+
+                const weekValue = savedTips[index] !== 0 ? savedTips[index] : '';
+
+                const label = document.createElement('label');
+
+                label.setAttribute('for', `tip-week-${index}`);
+
+                label.textContent = `${week} (€) :`;
+
+                const input = document.createElement('input');
+
+                input.type = 'number';
+
+                input.id = `tip-week-${index}`;
+
+                input.value = weekValue;
+
+                input.min = '0';
+
+                input.step = '0.01';
+
+                input.oninput = saveWeeklyTips;
+
+                input.required = true;
+
+                container.appendChild(label);
+
+                container.appendChild(input);
+
+            });
+
+            calculateConsolidatedTotal();
+
         }
 
         function saveTotalTips() {
+
             const totalTips = document.getElementById('total-tips').value;
-            localStorage.setItem(TIPS_KEY, totalTips);
+
+            const period = document.getElementById('tips-period').value;
+
+            localStorage.setItem(TIPS_STORAGE_KEY, totalTips);
+
+            localStorage.setItem(PERIOD_STORAGE_KEY, period);
+
+            updateTipsLabel(period);
+
+            updatePeriodLabel(period);
+
+            calculateConsolidatedTotal();
+
         }
 
         function loadTotalTips() {
-            const totalTips = localStorage.getItem(TIPS_KEY) || '100';
-            document.getElementById('total-tips').value = totalTips;
+
+            const savedTips = localStorage.getItem(TIPS_STORAGE_KEY);
+
+            const savedPeriod = localStorage.getItem(PERIOD_STORAGE_KEY) || 'jour';
+
+            if (savedTips) {
+
+                document.getElementById('total-tips').value = savedTips;
+
+            } else {
+
+                document.getElementById('total-tips').value = 100;
+
+            }
+
+            document.getElementById('tips-period').value = savedPeriod;
+
+            updateTipsLabel(savedPeriod);
+
+            updatePeriodLabel(savedPeriod);
+
         }
 
-        function calculateTips() {
-            saveEmployees();
-            const totalTips = parseFloat(document.getElementById('total-tips').value) || 0;
-            const employees = JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || '[]');
-            
-            let totalHours = 0;
-            employees.forEach(emp => {
-                totalHours += parseFloat(emp.hours) || 0;
-            });
+        function updatePeriodLabel(period) {
 
-            const tipRate = totalHours > 0 ? totalTips / totalHours : 0;
-            
-            document.getElementById('total-hours-output').textContent = totalHours.toFixed(2);
-            document.getElementById('tip-rate-output').textContent = \`\${tipRate.toFixed(2)} €\`;
-            
-            const sharesDiv = document.getElementById('individual-shares');
-            sharesDiv.innerHTML = '';
-            
-            const calculationResult = {
-                date: new Date().toLocaleString('fr-FR'),
-                totalTips: totalTips.toFixed(2),
-                totalHours: totalHours.toFixed(2),
-                tipRate: tipRate.toFixed(2),
-                shares: []
-            };
+            const label = document.getElementById('period-label');
 
-            employees.forEach(emp => {
-                const hours = parseFloat(emp.hours) || 0;
-                const share = hours * tipRate;
-                
-                const resultItem = document.createElement('div');
-                resultItem.className = 'result-item';
-                resultItem.innerHTML = \`<span>\${emp.name}:</span> <span class="highlight">\${share.toFixed(2)} €</span>\`;
-                sharesDiv.appendChild(resultItem);
+            let text = 'Total des Heures Travaillées :';
 
-                calculationResult.shares.push({ name: emp.name, share: share.toFixed(2) });
-            });
+            switch (period) {
 
-            document.getElementById('results').style.display = 'block';
-            saveToHistory(calculationResult);
-        }
+                case 'semaine':
 
-        function saveToHistory(result) {
-            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            history.unshift(result);
-            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-            loadHistory();
+                    text = 'Total des Heures Travaillées (Semaine) :';
+
+                    break;
+
+                case 'mois':
+
+                    text = 'Total des Heures Travaillées (Mois) :';
+
+                    break;
+
+                case 'jour':
+
+                default:
+
+                    text = 'Total des Heures Travaillées (Jour) :';
+
+                    break;
+
+            }
+
+            if (label) {
+
+                label.textContent = text;
+
+            }
+
         }
 
         function loadHistory() {
-            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            const historyDiv = document.getElementById('history-list');
-            historyDiv.innerHTML = '';
+
+            const list = document.getElementById('history-list');
+
+            const historyJSON = localStorage.getItem(HISTORY_STORAGE_KEY);
+
+            let history = historyJSON ? JSON.parse(historyJSON) : [];
+
+            list.innerHTML = '';
+
+            const isAdmin = localStorage.getItem(ADMIN_STATE_KEY) === 'true';
+
+            const noHistoryMessage = document.getElementById('no-history-message');
+
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
 
             if (history.length === 0) {
-                historyDiv.innerHTML = '<p>Aucun calcul enregistré.</p>';
+
+                if (noHistoryMessage) noHistoryMessage.style.display = 'block';
+
+                if (clearHistoryBtn) clearHistoryBtn.style.display = 'none';
+
                 return;
+
             }
 
-            history.forEach(entry => {
+            if (noHistoryMessage) noHistoryMessage.style.display = 'none';
+
+            if (clearHistoryBtn) clearHistoryBtn.style.display = 'block';
+
+            history.forEach((entry, entryIndex) => {
+
                 const entryDiv = document.createElement('div');
+
                 entryDiv.className = 'history-entry';
-                
-                let sharesHTML = entry.shares.map(s => \`<li>\${s.name}: \${s.share} €</li>\`).join('');
-                
-                entryDiv.innerHTML = \`
-                    <strong>\${entry.date}</strong><br>
-                    Total: \${entry.totalTips} € | Taux: \${entry.tipRate} €/h
-                    <ul>\${sharesHTML}</ul>
-                \`;
-                historyDiv.appendChild(entryDiv);
+
+                const sharesList = entry.shares.map((s, shareIndex) => {
+
+                    const isPaid = s.paid === undefined ? false : s.paid;
+
+                    const isPaidClass = isPaid ? 'is-paid' : '';
+
+                    return `
+
+                        <li class="share-item-paid ${isPaidClass}">
+
+                            <span>${s.name}: <strong>${s.share} €</strong></span>
+
+                            <label style="font-weight: normal; margin-bottom: 0;">
+
+                                <input type="checkbox"
+
+                                    onclick="togglePaid(${entryIndex}, ${shareIndex})"
+
+                                    ${isPaid ? 'checked' : ''} ${isAdmin ? '' : 'disabled'}> Récupéré
+
+                            </label>
+
+                        </li>`;
+
+                }).join('');
+
+                entryDiv.innerHTML = `
+
+                    <div class="history-header">
+
+                        <span>${entry.timestamp}</span>
+
+                        <button class="history-delete-btn" onclick="deleteHistoryEntry(${entryIndex})" ${isAdmin ? '' : 'disabled'}>Supprimer</button>
+
+                    </div>
+
+                    <div class="history-details">
+
+                        Montant Total : <strong>${entry.totalTips} €</strong> |
+
+                        Total Heures : <strong>${entry.totalHours}h</strong> |
+
+                        Taux : <strong>${entry.tipRate} €/h</strong>
+
+                        <ul style="list-style: none; padding-left: 0; margin-top: 5px; border-top: 1px dotted #ccc; padding-top: 5px;">
+
+                            ${sharesList}
+
+                        </ul>
+
+                    </div>
+
+                `;
+
+                list.appendChild(entryDiv);
+
             });
+
+            if (clearHistoryBtn) clearHistoryBtn.disabled = !isAdmin;
+
         }
-        
-        function clearHistory() {
-            if (confirm("Êtes-vous sûr de vouloir effacer tout l'historique ?")) {
-                localStorage.removeItem(HISTORY_KEY);
+
+        function saveHistory(totalTips, totalHours, tipRate, shares) {
+
+            const historyJSON = localStorage.getItem(HISTORY_STORAGE_KEY);
+
+            let history = historyJSON ? JSON.parse(historyJSON) : [];
+
+            const now = new Date();
+
+            const timestamp = now.toLocaleDateString('fr-FR') + ' ' + now.toLocaleTimeString('fr-FR');
+
+            // Formatage des données
+
+            const formattedShares = shares.map(s => ({
+
+                name: s.name,
+
+                share: s.share.toFixed(2),
+
+                paid: false // Nouvelle entrée est non payée
+
+            }));
+
+            const newEntry = {
+
+                timestamp: timestamp,
+
+                totalTips: totalTips.toFixed(2),
+
+                totalHours: totalHours.toFixed(1),
+
+                tipRate: tipRate.toFixed(2),
+
+                shares: formattedShares
+
+            };
+
+            history.unshift(newEntry); // Ajoute au début
+
+            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+
+            loadHistory();
+
+        }
+
+        function togglePaid(entryIndex, shareIndex) {
+
+            // S'assurer que seul le Responsable peut modifier l'état de "payé"
+
+            if (localStorage.getItem(ADMIN_STATE_KEY) !== 'true') return;
+
+            const historyJSON = localStorage.getItem(HISTORY_STORAGE_KEY);
+
+            let history = historyJSON ? JSON.parse(historyJSON) : [];
+
+            if (history[entryIndex] && history[entryIndex].shares[shareIndex]) {
+
+                history[entryIndex].shares[shareIndex].paid = !history[entryIndex].shares[shareIndex].paid;
+
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+
                 loadHistory();
+
             }
+
         }
+
+        function deleteHistoryEntry(index) {
+
+            if (localStorage.getItem(ADMIN_STATE_KEY) !== 'true') return;
+
+            if (!confirm("Voulez-vous vraiment supprimer cet enregistrement unique de l'historique ?")) {
+
+                return;
+
+            }
+
+            const historyJSON = localStorage.getItem(HISTORY_STORAGE_KEY);
+
+            let history = historyJSON ? JSON.parse(historyJSON) : [];
+
+            if (index >= 0 && index < history.length) {
+
+                history.splice(index, 1);
+
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+
+                loadHistory();
+
+            }
+
+        }
+
+        function clearHistory() {
+
+            if (localStorage.getItem(ADMIN_STATE_KEY) !== 'true') return;
+
+            const confirmationKey = 'SUPPRIMER';
+
+            if (!confirm("Êtes-vous sûr de vouloir effacer tout l'historique des répartitions ? Cette action est IRREVERSIBLE.")) {
+
+                return;
+
+            }
+
+            const userConfirmation = prompt(`Pour confirmer la suppression complète, veuillez taper le mot-clé suivant : "${confirmationKey}"`);
+
+            if (userConfirmation === confirmationKey) {
+
+                localStorage.removeItem(HISTORY_STORAGE_KEY);
+
+                loadHistory();
+
+                alert("L'historique a été complètement effacé.");
+
+            } else if (userConfirmation !== null) {
+
+                alert("Erreur de confirmation : L'historique n'a PAS été effacé. Le mot-clé saisi ne correspond pas.");
+
+            }
+
+        }
+
+        // ----------------------------------------------------
+
+        // FONCTION PRINCIPALE DE CALCUL
+
+        // ----------------------------------------------------
+
+        function calculateTips() {
+
+            if (localStorage.getItem(ADMIN_STATE_KEY) !== 'true') {
+
+                alert("Seul le Responsable peut effectuer le calcul de répartition.");
+
+                return;
+
+            }
+
+            // S'assurer que les dernières modifications de la liste sont prises en compte
+
+            saveEmployees(null, null, true); // Appel avec shouldReload=true pour forcer la mise à jour finale des noms/heures
+
+            const totalTips = calculateConsolidatedTotal();
+
+            const allHours = getEmployeeHours();
+
+            const accounts = getEmployeeAccounts();
+
+            const individualSharesDiv = document.getElementById('individual-shares');
+
+            let totalHours = 0;
+
+            individualSharesDiv.innerHTML = '';
+
+            document.getElementById('results').style.display = 'none';
+
+            if (isNaN(totalTips) || totalTips <= 0) {
+
+                alert("Veuillez entrer un montant total de pourboires valide et supérieur à zéro.");
+
+                return;
+
+            }
+
+            const employees = [];
+
+            // Collecte les heures de tous les employés enregistrés
+
+            accounts.forEach(account => {
+
+                const hours = allHours[account.name] || 0;
+
+                // Le Responsable n'a pas d'heures à comptabiliser
+
+                if (hours > 0 && account.name !== ADMIN_USERNAME) { 
+
+                    employees.push({ name: account.name, hours: hours });
+
+                    totalHours += hours;
+
+                }
+
+            });
+
+            if (employees.length === 0 || totalHours === 0) {
+
+                alert("Aucun employé n'a saisi d'heures travaillées pour cette période (ou le total des heures est zéro).");
+
+                return;
+
+            }
+
+            const tipRatePerHour = totalTips / totalHours;
+
+            let distributedTotal = 0;
+
+            const individualSharesData = [];
+
+            employees.forEach(employee => {
+
+                const share = employee.hours * tipRatePerHour;
+
+                const shareFormatted = share.toFixed(2);
+
+                distributedTotal += share;
+
+                individualSharesData.push({ name: employee.name, share: share });
+
+                const shareItem = document.createElement('div');
+
+                shareItem.className = 'result-item';
+
+                shareItem.innerHTML = `
+
+                    <span>${employee.name} (${employee.hours.toFixed(1)}h) :</span>
+
+                    <span class="highlight">${shareFormatted} €</span>
+
+                `;
+
+                individualSharesDiv.appendChild(shareItem);
+
+            });
+
+            // Affichage des totaux
+
+            document.getElementById('total-hours-output').textContent = totalHours.toFixed(1) + ' heures';
+
+            document.getElementById('tip-rate-output').textContent = tipRatePerHour.toFixed(2) + ' €/heure';
+
+            document.getElementById('distributed-total').textContent = distributedTotal.toFixed(2) + ' €';
+
+            document.getElementById('results').style.display = 'block';
+
+            // Sauvegarder ce calcul dans l'historique
+
+            saveHistory(totalTips, totalHours, tipRatePerHour, individualSharesData);
+
+        }
+
     </script>
+
 </body>
+
 </html>
