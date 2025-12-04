@@ -506,20 +506,19 @@
 
             <div id="login-form">
 
-                <label for="login-name">Nom d'utilisateur :</label>
+                <label for="login-email">Adresse e-mail :</label>
 
-                <input type="text" id="login-name" placeholder="Votre nom" required>
+                <input type="email" id="login-email" placeholder="Votre e-mail" required>
 
                 <label for="login-password">Mot de passe :</label>
 
                 <input type="password" id="login-password" placeholder="Mot de passe" required>
 
                 <button onclick="loginEmployee()">Se Connecter</button>
-
                 
-                </div>
-
             </div>
+
+        </div>
 
         <div id="employee-input-section" class="section" style="display:none;">
 
@@ -736,7 +735,7 @@
          * Connecte un employé ou le Responsable.
          */
         function loginEmployee() {
-            const email = document.getElementById('login-name').value.trim();
+            const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
 
             if (!email || !password) {
