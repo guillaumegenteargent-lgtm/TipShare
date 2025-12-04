@@ -316,7 +316,7 @@
         </div>
     </div>
     <script>
-        // Clés de stockage local (pour ce qui n'est pas lié à l'utilisateur)
+        // Clés de stockage local
         const EMPLOYEE_HOURS_KEY = 'tipshare_employee_hours';
         const TIPS_STORAGE_KEY = 'tipshare_total_tips';
         const DAILY_TIPS_STORAGE_KEY = 'tipshare_daily_tips';
@@ -328,7 +328,8 @@
         const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
         const weeksOfMonth = ["Semaine 1", "Semaine 2", "Semaine 3", "Semaine 4", "Semaine 5"];
 
-        // État global de l'utilisateur connecté
+        // --- Initialisation de Firebase et de l'authentification ---
+        const auth = firebase.auth();
         let currentUser = null;
 
         // INITIALISATION
@@ -336,18 +337,15 @@
             auth.onAuthStateChanged(user => {
                 currentUser = user;
                 if (user) {
-                    // Vérifier si l'utilisateur est admin
                     user.getIdTokenResult().then(idTokenResult => {
                         const isAdmin = !!idTokenResult.claims.admin;
                         localStorage.setItem(ADMIN_STATE_KEY, isAdmin);
                         updateUIForUser(user.email, isAdmin);
                     });
                 } else {
-                    // Pas d'utilisateur connecté
                     localStorage.setItem(ADMIN_STATE_KEY, 'false');
                     updateUIForUser(null, false);
                 }
-                // Charger les données générales
                 loadTotalTips();
                 loadHistory();
                 updateInputFields();
@@ -382,30 +380,28 @@
             headerStatusDiv.innerHTML = '';
             
             if (userEmail) {
-                // Utilisateur connecté
                 loginSection.style.display = 'none';
                 let headerContent = `Connecté : <strong>${userEmail}</strong> <button onclick="logoutEmployee()" class="logout-button">Déconnexion</button>`;
                 
                 if (isAdmin) {
                     headerContent = `<span id="admin-status">Mode Responsable</span>` + headerContent;
-                    employeeInputSection.style.display = 'none'; // L'admin ne saisit pas d'heures pour lui-même
+                    employeeInputSection.style.display = 'none';
                     adminControls.disabled = false;
-                    loadEmployees(); // L'admin voit la liste des employés
+                    loadEmployees();
                 } else {
                     employeeInputSection.style.display = 'block';
                     adminControls.disabled = true;
-                    loadUserHours(); // L'employé charge ses propres heures
+                    loadUserHours();
                 }
                 headerStatusDiv.innerHTML = headerContent;
 
             } else {
-                // Utilisateur déconnecté
                 loginSection.style.display = 'block';
                 employeeInputSection.style.display = 'none';
                 adminControls.disabled = true;
                 document.getElementById('login-password').value = '';
             }
-            loadHistory(); // Recharger l'historique pour gérer les permissions des boutons
+            loadHistory();
         }
 
         // GESTION DES HEURES
@@ -431,9 +427,6 @@
         }
 
         // --- SECTION ADMIN ---
-        // La gestion des employés (ajout, suppression, lister) nécessite un backend
-        // pour des raisons de sécurité. Le code ci-dessous est une simulation.
-        
         function addEmployeeField() {
             alert("Pour ajouter un employé, veuillez le faire depuis la console Firebase (Authentication > Users > Add user).");
         }
@@ -443,11 +436,9 @@
             list.innerHTML = '<p>La liste des employés est gérée dans la console Firebase. Le calcul prendra en compte les heures de ceux qui en ont saisi.</p>';
         }
 
-        // Le reste des fonctions (calcul, historique, etc.) reste ici pour l'instant.
-        // Vous pourriez envisager de les déplacer vers une base de données comme Firestore.
-        
-        function calculateTips() { /* ... Votre fonction de calcul ... */ }
-        function loadHistory() { /* ... Votre fonction d'historique ... */ }
+        // --- Fonctions utilitaires (à compléter) ---
+        function calculateTips() { /* ... Votre logique de calcul ... */ }
+        function loadHistory() { /* ... Votre logique d'historique ... */ }
         function saveTotalTips() { /* ... etc ... */ }
         function updateInputFields() { /* ... etc ... */ }
         function calculateConsolidatedTotal() { /* ... etc ... */ }
@@ -458,9 +449,6 @@
         function updateTipsLabel(period) { /* ... etc ... */ }
         function updatePeriodLabel(period) { /* ... etc ... */ }
         function clearHistory() { /* ... etc ... */ }
-        
-        // --- Collez ici le reste de vos fonctions utilitaires ---
-        // (celles que j'ai temporairement masquées pour la lisibilité)
 
     </script>
 </body>
